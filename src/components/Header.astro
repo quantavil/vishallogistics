@@ -1,5 +1,5 @@
-<!-- src/components/Header.astro -->
 ---
+import  AnimatedLogo  from '../components/ui/AnimatedLogo.jsx';
 ---
 
 <script>
@@ -19,7 +19,7 @@
         if (activeIndicator) {
           const linkRect = firstLink.getBoundingClientRect();
           activeIndicator.style.width = `${linkRect.width}px`;
-          activeIndicator.style.left = `${firstLink.offsetLeft}px`;
+          activeIndicator.style.left = `${(firstLink as HTMLElement).offsetLeft}px`;
         }
       }
       
@@ -52,7 +52,7 @@
         if (activeIndicator) {
           const linkRect = link.getBoundingClientRect();
           activeIndicator.style.width = `${linkRect.width}px`;
-          activeIndicator.style.left = `${link.offsetLeft}px`;
+          activeIndicator.style.left = `${(link as HTMLElement).offsetLeft}px`;
         }
       });
     });
@@ -64,7 +64,7 @@
       if (activeLink && activeIndicator) {
         const linkRect = activeLink.getBoundingClientRect();
         activeIndicator.style.width = `${linkRect.width}px`;
-        activeIndicator.style.left = `${activeLink.offsetLeft}px`;
+        activeIndicator.style.left = `${(activeLink as HTMLElement).offsetLeft}px`;
       }
     });
     
@@ -102,8 +102,8 @@
         
         if (activeIndicator && navLinks.length > 0) {
           const firstLink = navLinks[0];
-          activeIndicator.style.width = `${firstLink.offsetWidth}px`;
-          activeIndicator.style.left = `${firstLink.offsetLeft}px`;
+          activeIndicator.style.width = `${(firstLink as HTMLElement).offsetWidth}px`;
+          activeIndicator.style.left = `${(firstLink as HTMLElement).offsetLeft}px`;
         }
         
         return;
@@ -111,8 +111,8 @@
       
       // Check which section is in view
       sections.forEach(section => {
-        const sectionTop = section.offsetTop;
-        const sectionHeight = section.offsetHeight;
+        const sectionTop = (section as HTMLElement).offsetTop;
+        const sectionHeight = (section as HTMLElement).offsetHeight;
         const sectionId = section.getAttribute('id');
         
         if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
@@ -121,8 +121,8 @@
             if (link.getAttribute('href') === `#${sectionId}`) {
               link.classList.add('active');
               if (activeIndicator) {
-                activeIndicator.style.width = `${link.offsetWidth}px`;
-                activeIndicator.style.left = `${link.offsetLeft}px`;
+                activeIndicator.style.width = `${(link as HTMLElement).offsetWidth}px`;
+                activeIndicator.style.left = `${(link as HTMLElement).offsetLeft}px`;
               }
             } else {
               link.classList.remove('active');
@@ -149,15 +149,11 @@
 <header class="modern-header fixed w-full z-50 transition-all duration-300">
   <div class="container mx-auto px-4">
     <div class="flex justify-between items-center h-20">
-      <!-- Logo Section with Glow Effect -->
-        <a href="/" class="group flex items-center relative">
-          <div class="absolute -inset-2 bg-gradient-to-r from-primary-500/30 via-primary-400/10 to-primary-600/30 rounded-lg blur-xl opacity-0 group-hover:opacity-100 transition duration-500 group-hover:duration-200"></div>
-          <div class="relative z-10 transition-transform duration-300 group-hover:scale-105">
-            <span class="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-100">
-              Vishal<span class="text-primary-400"> Logistics</span>
-            </span>
-          </div>
-        </a>
+      <!-- Text-based Logo with animation (replaced image logo) -->
+      <a href="/" class="group flex items-center relative">
+        <div class="absolute -inset-2 bg-gradient-to-r from-primary-500/30 via-primary-400/10 to-primary-600/30 rounded-lg blur-xl opacity-0 group-hover:opacity-100 transition duration-500 group-hover:duration-200"></div>
+        <AnimatedLogo client:load />
+      </a>
 
       <!-- Desktop Navigation -->
       <nav class="desktop-nav hidden lg:flex items-center relative">

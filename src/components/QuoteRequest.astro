@@ -1,13 +1,7 @@
 ---
-import WaveTransition from './ui/WaveTransition.jsx';
 ---
 
 <section id="contact" class="pt-8 pb-16 relative">
-  <!-- Top wave transition -->
-  <div class="absolute top-0 left-0 right-0 rotate-180">
-    <WaveTransition flip={true} client:load />
-  </div>
-  
   <div class="container mx-auto px-4 pt-12">
     <div class="max-w-4xl mx-auto bg-gradient-to-r from-primary-600 to-primary-700 rounded-2xl shadow-lg overflow-hidden relative">
       <!-- Background pattern -->
@@ -115,39 +109,52 @@ import WaveTransition from './ui/WaveTransition.jsx';
     const emailOptionsDialog = document.getElementById('emailOptionsDialog');
     const closeDialogBtn = document.getElementById('closeDialogBtn');
     const copyEmailBtn = document.getElementById('copyEmailBtn');
-    const emailCopy = document.getElementById('emailCopy');
+    const emailCopy = document.getElementById('emailCopy') as HTMLInputElement;
     
-    // Open dialog when request button is clicked
-    quoteRequestBtn.addEventListener('click', () => {
-      emailOptionsDialog.classList.remove('hidden');
-      document.body.style.overflow = 'hidden'; // Prevent scrolling
-    });
+    if (quoteRequestBtn) {
+      // Open dialog when request button is clicked
+      quoteRequestBtn.addEventListener('click', () => {
+        if (emailOptionsDialog) {
+          emailOptionsDialog.classList.remove('hidden');
+          document.body.style.overflow = 'hidden'; // Prevent scrolling
+        }
+      });
+    }
     
-    // Close dialog
-    closeDialogBtn.addEventListener('click', () => {
-      emailOptionsDialog.classList.add('hidden');
-      document.body.style.overflow = ''; // Restore scrolling
-    });
+    if (closeDialogBtn) {
+      // Close dialog
+      closeDialogBtn.addEventListener('click', () => {
+        if (emailOptionsDialog) {
+          emailOptionsDialog.classList.add('hidden');
+          document.body.style.overflow = ''; // Restore scrolling
+        }
+      });
+    }
     
-    // Close dialog when clicking outside
-    emailOptionsDialog.addEventListener('click', (e) => {
-      if (e.target === emailOptionsDialog) {
-        emailOptionsDialog.classList.add('hidden');
-        document.body.style.overflow = '';
-      }
-    });
+    if (emailOptionsDialog) {
+      // Close dialog if clicking outside content
+      emailOptionsDialog.addEventListener('click', (e) => {
+        if (e.target === emailOptionsDialog) {
+          emailOptionsDialog.classList.add('hidden');
+          document.body.style.overflow = ''; // Restore scrolling
+        }
+      });
+    }
     
-    // Copy email to clipboard
-    copyEmailBtn.addEventListener('click', () => {
-      emailCopy.select();
-      document.execCommand('copy');
-      
-      // Show copied feedback
-      const originalText = copyEmailBtn.textContent;
-      copyEmailBtn.textContent = 'Copied!';
-      setTimeout(() => {
-        copyEmailBtn.textContent = originalText;
-      }, 2000);
-    });
+    if (copyEmailBtn && emailCopy) {
+      // Copy email button
+      copyEmailBtn.addEventListener('click', async () => {
+        emailCopy.select();
+        try {
+          await navigator.clipboard.writeText(emailCopy.value);
+          copyEmailBtn.textContent = 'Copied!';
+          setTimeout(() => {
+            copyEmailBtn.textContent = 'Copy';
+          }, 2000);
+        } catch (err) {
+          console.error('Failed to copy: ', err);
+        }
+      });
+    }
   });
 </script>

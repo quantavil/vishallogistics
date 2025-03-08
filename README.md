@@ -58,28 +58,3 @@ Feel free to check [our documentation](https://docs.astro.build) or jump into ou
 [![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/basics)
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/basics/devcontainer.json)
 
-<style>
-  @keyframes gradient {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
-  h1 {
-    background: linear-gradient(-45deg, #146aff, #0e55ef, #9613dd, #7d12b9);
-    background-size: 400% 400%;
-    animation: gradient 15s ease infinite;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  th, td {
-    padding: 10px;
-    border: 1px solid #ddd;
-  }
-  th {
-    background-color: #f4f4f4;
-  }
-</style>
