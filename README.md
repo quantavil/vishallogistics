@@ -24,7 +24,7 @@ Inside of your Astro project, you'll see the following folders and files:
 │   │   ├── TestimonialCarousel.jsx
 │   │   └── ui/
 │   │       ├── VideoBackground.jsx
-│   │       └── WaveTransition.jsx
+│   │       └── AnimatedLogo.jsx
 │   ├── layouts/
 │   │   └── Layout.astro
 │   └── pages/
