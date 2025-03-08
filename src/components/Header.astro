@@ -1,0 +1,299 @@
+<!-- src/components/Header.astro -->
+---
+---
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Elegant header scroll effects
+    const header = document.querySelector('.modern-header');
+    const navLinks = document.querySelectorAll('.nav-link');
+    const activeIndicator = document.getElementById('active-indicator');
+    const bottomBarItems = document.querySelectorAll('.bottom-bar-item');
+    
+    // Set initial active states
+    const setInitialActive = () => {
+      // Set first desktop link as active initially
+      if (navLinks.length > 0) {
+        const firstLink = navLinks[0];
+        firstLink.classList.add('active');
+        if (activeIndicator) {
+          const linkRect = firstLink.getBoundingClientRect();
+          activeIndicator.style.width = `${linkRect.width}px`;
+          activeIndicator.style.left = `${firstLink.offsetLeft}px`;
+        }
+      }
+      
+      // Set first mobile tab as active
+      if (bottomBarItems.length > 0) {
+        bottomBarItems[0].classList.add('active');
+      }
+    };
+    
+    setInitialActive();
+    
+    // Header appearance change on scroll
+    const updateHeader = () => {
+      if (window.scrollY > 30) {
+        header?.classList.add('scrolled');
+      } else {
+        header?.classList.remove('scrolled');
+      }
+    };
+    
+    // Initial update
+    updateHeader();
+    
+    // Update on scroll
+    window.addEventListener('scroll', updateHeader);
+    
+    // Desktop nav link hover effect
+    navLinks.forEach(link => {
+      link.addEventListener('mouseenter', () => {
+        if (activeIndicator) {
+          const linkRect = link.getBoundingClientRect();
+          activeIndicator.style.width = `${linkRect.width}px`;
+          activeIndicator.style.left = `${link.offsetLeft}px`;
+        }
+      });
+    });
+    
+    // Reset indicator to active link when mouse leaves nav
+    const navContainer = document.querySelector('.desktop-nav');
+    navContainer?.addEventListener('mouseleave', () => {
+      const activeLink = document.querySelector('.nav-link.active');
+      if (activeLink && activeIndicator) {
+        const linkRect = activeLink.getBoundingClientRect();
+        activeIndicator.style.width = `${linkRect.width}px`;
+        activeIndicator.style.left = `${activeLink.offsetLeft}px`;
+      }
+    });
+    
+    // Mobile bottom bar interactions
+    bottomBarItems.forEach(item => {
+      item.addEventListener('click', () => {
+        bottomBarItems.forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+      });
+    });
+    
+    // Handle section scrolling to update active states
+    const sections = document.querySelectorAll('section[id]');
+    
+    const updateActiveNavigation = () => {
+      const scrollPosition = window.scrollY + 100;
+      
+      // Default to home if at the top
+      if (scrollPosition < 150) {
+        navLinks.forEach((link, index) => {
+          if (index === 0) {
+            link.classList.add('active');
+          } else {
+            link.classList.remove('active');
+          }
+        });
+        
+        bottomBarItems.forEach((item, index) => {
+          if (index === 0) {
+            item.classList.add('active');
+          } else {
+            item.classList.remove('active');
+          }
+        });
+        
+        if (activeIndicator && navLinks.length > 0) {
+          const firstLink = navLinks[0];
+          activeIndicator.style.width = `${firstLink.offsetWidth}px`;
+          activeIndicator.style.left = `${firstLink.offsetLeft}px`;
+        }
+        
+        return;
+      }
+      
+      // Check which section is in view
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.offsetHeight;
+        const sectionId = section.getAttribute('id');
+        
+        if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+          // Update desktop nav
+          navLinks.forEach(link => {
+            if (link.getAttribute('href') === `#${sectionId}`) {
+              link.classList.add('active');
+              if (activeIndicator) {
+                activeIndicator.style.width = `${link.offsetWidth}px`;
+                activeIndicator.style.left = `${link.offsetLeft}px`;
+              }
+            } else {
+              link.classList.remove('active');
+            }
+          });
+          
+          // Update mobile nav
+          bottomBarItems.forEach(item => {
+            if (item.getAttribute('href') === `#${sectionId}`) {
+              item.classList.add('active');
+            } else {
+              item.classList.remove('active');
+            }
+          });
+        }
+      });
+    };
+    
+    window.addEventListener('scroll', updateActiveNavigation);
+    updateActiveNavigation(); // Initial call
+  });
+</script>
+
+<header class="modern-header fixed w-full z-50 transition-all duration-300">
+  <div class="container mx-auto px-4">
+    <div class="flex justify-between items-center h-20">
+      <!-- Logo Section with Glow Effect -->
+      <a href="/" class="group flex items-center relative">
+        <div class="absolute -inset-2 bg-gradient-to-r from-primary-500/30 via-primary-400/10 to-primary-600/30 rounded-lg blur-xl opacity-0 group-hover:opacity-100 transition duration-500 group-hover:duration-200"></div>
+        <img 
+          src="/public/logo2.png" 
+          alt="Vishal Logistics Solutions Logo" 
+          class="h-12 w-auto relative z-10 transition-transform duration-300 group-hover:scale-105"
+        />
+      </a>
+
+      <!-- Desktop Navigation -->
+      <nav class="desktop-nav hidden lg:flex items-center relative">
+        <!-- Floating Indicator -->
+        <div id="active-indicator" class="absolute bottom-0 h-1 bg-gradient-to-r from-primary-500 to-primary-600 rounded-full transition-all duration-300 ease-out"></div>
+        
+        <!-- Navigation Links -->
+        <a href="#" class="nav-link text-white font-medium px-6 py-2.5 relative">Home</a>
+        <a href="#services" class="nav-link text-white font-medium px-6 py-2.5 relative">Services</a>
+        <a href="#about" class="nav-link text-white font-medium px-6 py-2.5 relative">About Us</a>
+        <a href="#contact" class="nav-link text-white font-medium px-6 py-2.5 relative">Contact</a>
+        
+        <!-- CTA Button -->
+        <a 
+          href="https://mail.google.com/mail/?view=cm&fs=1&to=info@vishallogistics.in&su=Quote%20Request&body=I%20would%20like%20to%20request%20a%20quote%20for%20logistics%20services." 
+          class="ml-5 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-6 py-2.5 rounded-full font-medium transition-all duration-300 shadow-lg hover:shadow-primary-500/30 transform hover:-translate-y-0.5"
+        >
+          <span class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            Get Quote
+          </span>
+        </a>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<!-- Beautiful Mobile Navigation Tabs -->
+
+<!-- Mobile Bottom Navigation -->
+<div class="bottom-nav fixed bottom-0 left-0 right-0 bg-white shadow-lg md:hidden z-50 transition-transform duration-300 ease-in-out">
+  <div class="flex justify-around items-center h-16 px-2 relative">
+    <!-- Home -->
+    <a href="#" class="bottom-nav-link flex flex-col items-center justify-center w-full h-full text-secondary-400 hover:text-primary-600 transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+      </svg>
+      <span class="text-xs mt-1">Home</span>
+    </a>
+    
+    <!-- Services -->
+    <a href="#services" class="bottom-nav-link flex flex-col items-center justify-center w-full h-full text-secondary-400 hover:text-primary-600 transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+      </svg>
+      <span class="text-xs mt-1">Services</span>
+    </a>
+    
+    <!-- Quote Button (Center, elevated) -->
+    <a href="mailto:info@vishallogistics.in" class="bottom-nav-cta flex flex-col items-center justify-center relative">
+      <div class="absolute -top-5 w-14 h-14 rounded-full bg-gradient-to-r from-primary-600 to-primary-700 flex items-center justify-center shadow-lg text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+      </div>
+      <span class="text-xs mt-7 text-primary-600 font-medium">Quote</span>
+    </a>
+    
+    <!-- About -->
+    <a href="#about" class="bottom-nav-link flex flex-col items-center justify-center w-full h-full text-secondary-400 hover:text-primary-600 transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <span class="text-xs mt-1">About</span>
+    </a>
+    
+    <!-- Contact -->
+    <a href="#contact" class="bottom-nav-link flex flex-col items-center justify-center w-full h-full text-secondary-400 hover:text-primary-600 transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+      </svg>
+      <span class="text-xs mt-1">Contact</span>
+    </a>
+    
+    <!-- Sliding indicator -->
+    <div class="nav-indicator-bar"></div>
+  </div>
+</div>
+
+<style>
+  /* Modern Header Styling */
+  .modern-header {
+    background: rgba(50, 50, 60, 0.4);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .modern-header.scrolled {
+    background: rgba(50, 50, 60, 0.95);
+    backdrop-filter: blur(15px);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Desktop Navigation Styling */
+  .nav-link {
+    transition: all 0.3s ease;
+  }
+  
+  .nav-link:hover {
+    color: rgba(255, 255, 255, 1);
+  }
+  
+  .nav-link::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.5);
+    transform: translateX(-50%);
+    transition: width 0.3s ease;
+  }
+  
+  .nav-link:hover::after {
+    width: 30%;
+  }
+  
+  .nav-link.active {
+    color: rgba(255, 255, 255, 1);
+  }
+  
+  /* Mobile Bottom Bar Styling */
+  .mobile-bottom-bar {
+    --bar-width: calc(100% - 2rem);
+    max-width: var(--bar-width);
+    width: 100%;
+  }
+  
+  .bottom-bar-item.active {
+    color: theme('colors.primary.600');
+  }
+  
+  .bottom-bar-item.active .active-bg {
+    transform: scale(1);
+  }
+</style>
