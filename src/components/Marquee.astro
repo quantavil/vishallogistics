@@ -1,0 +1,27 @@
+---
+const items = [
+  'Customs Clearance',
+  'Ocean Freight',
+  'Air Freight',
+  'Road Transport',
+  'Express Delivery',
+  'Warehousing',
+  'Certificate of Origin',
+  'Fumigation',
+  'Phytosanitary',
+];
+const repeated = [...items, ...items, ...items];
+---
+
+<div class="bg-navy py-4 overflow-hidden select-none">
+  <div class="flex animate-marquee whitespace-nowrap">
+    {
+      repeated.map((item) => (
+        <span class="flex items-center shrink-0">
+          <span class="text-white/80 text-sm font-medium tracking-wide uppercase px-6">{item}</span>
+          <span class="w-1.5 h-1.5 rounded-full bg-copper/60 shrink-0" />
+        </span>
+      ))
+    }
+  </div>
+</div>

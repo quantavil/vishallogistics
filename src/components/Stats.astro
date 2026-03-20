@@ -1,0 +1,80 @@
+---
+const stats = [
+  { value: '20', suffix: '+', label: 'Countries Served' },
+  { value: '5000', suffix: '+', label: 'Shipments Delivered' },
+  { value: '98.7', suffix: '%', label: 'On-Time Rate' },
+  { value: '200', suffix: '+', label: 'Active Clients' },
+];
+---
+
+<section class="py-20 md:py-28 bg-white">
+  <div class="max-w-[1400px] mx-auto px-5 lg:px-8">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-4">
+      {
+        stats.map((s, i) => (
+          <div
+            class="relative text-center lg:text-left"
+            data-reveal
+            style={`--reveal-d:${i * 0.1}s`}
+          >
+            {i > 0 && (
+              <div class="hidden lg:block absolute left-0 top-1/2 -translate-y-1/2 w-px h-12 bg-navy/10" />
+            )}
+            <div class="lg:pl-8">
+              <div class="flex items-baseline justify-center lg:justify-start gap-0.5">
+                <span
+                  class="font-display font-extrabold text-navy text-5xl md:text-6xl tracking-tight"
+                  data-counter={s.value}
+                >
+                  0
+                </span>
+                <span class="font-display font-bold text-copper text-2xl md:text-3xl">
+                  {s.suffix}
+                </span>
+              </div>
+              <p class="mt-2 text-sm text-offblack/45 font-medium uppercase tracking-wider">
+                {s.label}
+              </p>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const counters = document.querySelectorAll<HTMLElement>('[data-counter]');
+    if (!counters.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const el = entry.target as HTMLElement;
+          const target = parseFloat(el.dataset.counter || '0');
+          const isFloat = target % 1 !== 0;
+          const duration = 2000;
+          const start = performance.now();
+
+          function update(now: number) {
+            const elapsed = now - start;
+            const progress = Math.min(elapsed / duration, 1);
+            const ease = 1 - Math.pow(1 - progress, 3);
+            const current = target * ease;
+            el.textContent = isFloat
+              ? current.toFixed(1)
+              : Math.floor(current).toLocaleString();
+            if (progress < 1) requestAnimationFrame(update);
+          }
+
+          requestAnimationFrame(update);
+          observer.unobserve(el);
+        });
+      },
+      { threshold: 0.3 }
+    );
+    counters.forEach((c) => observer.observe(c));
+  });
+</script>

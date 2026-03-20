@@ -1,0 +1,35 @@
+---
+const clients = [
+  'Khatema Fibres Limited',
+  'Global Paper Link',
+  'Cosmo Ferrites Limited',
+  'Endurance Technologies Limited',
+  'Shirdi Panel Industries',
+  'Jagdamba Paper Corporation',
+  'Rikki Plastic Pvt. Ltd.',
+  'Flexituff Ventures International',
+];
+const doubled = [...clients, ...clients, ...clients];
+---
+
+<section class="py-14 bg-white border-y border-navy/[0.04]">
+  <div class="max-w-[1400px] mx-auto px-5 lg:px-8 mb-8 text-center">
+    <p class="text-xs uppercase tracking-[0.25em] font-medium text-offblack/30">
+      Trusted by industry leaders
+    </p>
+  </div>
+  <div class="overflow-hidden">
+    <div class="flex animate-marquee-slow whitespace-nowrap">
+      {
+        doubled.map((c) => (
+          <span class="flex items-center shrink-0">
+            <span class="px-8 md:px-12 text-navy/20 font-display font-bold text-lg md:text-xl tracking-wide uppercase">
+              {c}
+            </span>
+            <span class="w-1 h-1 rounded-full bg-navy/10 shrink-0" />
+          </span>
+        ))
+      }
+    </div>
+  </div>
+</section>

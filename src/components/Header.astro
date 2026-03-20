@@ -1,0 +1,195 @@
+---
+// src/components/Header.astro
+const nav = [
+  { label: 'Home', href: '/' },
+  { label: 'Services', href: '/services' },
+  { label: 'Contact', href: '/contact' },
+];
+
+const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
+---
+
+<header
+  id="site-header"
+  class="fixed top-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md transition-shadow duration-300"
+>
+  <div class="max-w-[1400px] mx-auto px-5 lg:px-8">
+    <nav class="flex items-center justify-between h-20">
+      <!-- Logo -->
+      <a href="/" class="flex items-center gap-3 shrink-0">
+        <div
+          class="w-10 h-10 rounded-lg bg-copper flex items-center justify-center shadow-md shadow-copper/20"
+        >
+          <span class="text-white font-display font-extrabold text-lg leading-none">V</span>
+        </div>
+        <div class="leading-[1.15]">
+          <span class="font-display font-bold text-navy text-[0.85rem] tracking-wide block"
+            >VISHAL</span
+          >
+          <span class="text-[0.65rem] text-navy/50 tracking-[0.22em] uppercase font-medium"
+            >Logistics</span
+          >
+        </div>
+      </a>
+
+      <!-- Desktop nav -->
+      <div class="hidden md:flex items-center gap-9">
+        {
+          nav.map((n) => {
+            const isActive =
+              n.href === '/'
+                ? pathname === '/'
+                : pathname.startsWith(n.href);
+            return (
+              <a
+                href={n.href}
+                class:list={[
+                  'text-sm font-medium transition-colors relative',
+                  'after:absolute after:bottom-[-4px] after:left-0 after:h-[2px]',
+                  'after:bg-copper after:transition-all after:duration-300',
+                  isActive
+                    ? 'text-navy after:w-full'
+                    : 'text-navy/60 hover:text-navy after:w-0 hover:after:w-full',
+                ]}
+                aria-current={isActive ? 'page' : undefined}
+              >
+                {n.label}
+              </a>
+            );
+          })
+        }
+      </div>
+
+      <!-- Desktop CTA -->
+      <a
+        href="/contact"
+        class="hidden md:inline-flex items-center gap-2 bg-navy text-white text-sm font-medium
+               px-5 py-2.5 rounded-lg hover:bg-navy-800 active:scale-[0.97] transition-all duration-200"
+      >
+        Get a Quote
+        <svg
+          class="w-3.5 h-3.5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M5 12h14M12 5l7 7-7 7"></path>
+        </svg>
+      </a>
+
+      <!-- Mobile toggle -->
+      <button
+        id="menu-btn"
+        class="md:hidden relative w-8 h-8 flex items-center justify-center"
+        aria-label="Toggle navigation menu"
+        aria-expanded="false"
+      >
+        <div class="flex flex-col gap-[5px]" id="burger">
+          <span class="block w-5 h-[2px] bg-navy transition-all duration-300 origin-center"></span>
+          <span class="block w-5 h-[2px] bg-navy transition-all duration-300"></span>
+          <span class="block w-3.5 h-[2px] bg-navy transition-all duration-300 origin-center"></span>
+        </div>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Mobile drawer -->
+  <div
+    id="mobile-drawer"
+    class="md:hidden fixed inset-0 top-20 bg-cream z-30 translate-x-full
+           transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
+    aria-hidden="true"
+  >
+    <div class="flex flex-col px-8 pt-12 gap-6 h-full">
+      {
+        nav.map((n) => {
+          const isActive =
+            n.href === '/'
+              ? pathname === '/'
+              : pathname.startsWith(n.href);
+          return (
+            <a
+              href={n.href}
+              class:list={[
+                'text-2xl font-display font-bold transition-colors mobile-link',
+                isActive ? 'text-copper' : 'text-navy hover:text-copper',
+              ]}
+            >
+              {n.label}
+            </a>
+          );
+        })
+      }
+      <a
+        href="/contact"
+        class="mt-6 inline-flex items-center justify-center gap-2 bg-copper text-white
+               font-medium px-8 py-4 rounded-lg text-lg mobile-link"
+      >
+        Get a Quote
+      </a>
+      <div class="mt-auto pb-10 border-t border-navy/10 pt-6">
+        <a href="tel:+918439312613" class="text-navy/50 text-sm font-medium">+91 84393 12613</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<script>
+  function initHeader() {
+    const header = document.getElementById('site-header');
+    const btn = document.getElementById('menu-btn');
+    const drawer = document.getElementById('mobile-drawer');
+    const bars = document.querySelectorAll('#burger span');
+    if (!header || !btn || !drawer) return;
+
+    let open = false;
+
+    function onScroll() {
+      if (header) {
+        header.style.boxShadow =
+          window.scrollY > 40 ? '0 1px 0 rgba(0,0,0,0.06)' : 'none';
+      }
+    }
+
+    function toggle() {
+      if (!drawer || !btn) return;
+      open = !open;
+      drawer.classList.toggle('translate-x-full', !open);
+      drawer.classList.toggle('translate-x-0', open);
+      drawer.setAttribute('aria-hidden', String(!open));
+      btn.setAttribute('aria-expanded', String(open));
+      document.body.style.overflow = open ? 'hidden' : '';
+      if (open) {
+        bars[0]?.setAttribute('style', 'transform:translateY(7px) rotate(45deg);width:1.25rem');
+        bars[1]?.setAttribute('style', 'opacity:0');
+        bars[2]?.setAttribute('style', 'transform:translateY(-7px) rotate(-45deg);width:1.25rem');
+      } else {
+        bars.forEach((b) => b?.removeAttribute('style'));
+      }
+    }
+
+    // Clean up previous listeners to prevent stacking
+    const newBtn = btn.cloneNode(true) as HTMLElement;
+    btn.parentNode?.replaceChild(newBtn, btn);
+    newBtn.addEventListener('click', toggle);
+
+    document.querySelectorAll('.mobile-link').forEach((l) => {
+      const newLink = l.cloneNode(true) as HTMLElement;
+      l.parentNode?.replaceChild(newLink, l);
+      newLink.addEventListener('click', () => { if (open) toggle(); });
+    });
+
+    // Remove old scroll listener by using a named ref
+    window.removeEventListener('scroll', (window as any).__vlScrollFn);
+    (window as any).__vlScrollFn = onScroll;
+    window.addEventListener('scroll', onScroll);
+
+    // Reset state on nav
+    document.body.style.overflow = '';
+  }
+
+  document.addEventListener('astro:page-load', initHeader);
+</script>

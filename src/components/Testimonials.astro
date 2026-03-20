@@ -1,0 +1,81 @@
+---
+const testimonials = [
+  {
+    quote: 'Vishal Logistics Solutions has been instrumental in streamlining our supply chain. Their customs clearance team handles documentation faster than anyone we have worked with before.',
+    company: 'Khatema Fibres Limited',
+    initials: 'KF',
+  },
+  {
+    quote: 'The team at Vishal Logistics has consistently delivered exceptional service across our ocean freight shipments. Rates are competitive and transit visibility is outstanding.',
+    company: 'Global Paper Link',
+    initials: 'GP',
+  },
+  {
+    quote: "I've been impressed with Vishal's attention to detail and commitment to deadline adherence. Our export shipments reach on schedule, every time.",
+    company: 'Cosmo Ferrites Limited',
+    initials: 'CF',
+  },
+  {
+    quote: 'Switching to Vishal for our road transport cut transit delays by nearly half. Their GPS tracking gives us real-time confidence across every route.',
+    company: 'Endurance Technologies Limited',
+    initials: 'ET',
+  },
+  {
+    quote: 'From fumigation certificates to phytosanitary documentation, Vishal handles compliance requirements that most forwarders overlook entirely.',
+    company: 'Flexituff Ventures International Ltd',
+    initials: 'FV',
+  },
+  {
+    quote: 'We needed a logistics partner who could manage both warehousing and last-mile delivery in a single workflow. Vishal delivered exactly that.',
+    company: 'Shirdi Panel Industries (Asis India)',
+    initials: 'SP',
+  },
+];
+---
+
+<section class="py-20 md:py-28 bg-cream overflow-hidden">
+  <div class="max-w-[1400px] mx-auto px-5 lg:px-8">
+    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-14">
+      <div data-reveal>
+        <p class="text-xs uppercase tracking-[0.25em] font-medium text-copper mb-4">Testimonials</p>
+        <h2 class="font-display font-bold text-navy text-3xl md:text-4xl tracking-tight">
+          What our clients say
+        </h2>
+      </div>
+      <a
+        href="/contact"
+        class="text-copper text-sm font-medium hover:underline underline-offset-4"
+        data-reveal
+        style="--reveal-d:0.1s"
+      >
+        Become a client &rarr;
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      {
+        testimonials.map((t, i) => (
+          <div
+            class="relative p-7 md:p-8 rounded-2xl bg-white border border-navy/[0.05]"
+            data-reveal
+            style={`--reveal-d:${i * 0.08}s`}
+          >
+            <!-- Quote mark -->
+            <span class="absolute top-5 right-6 font-display text-6xl text-copper/10 leading-none select-none pointer-events-none">
+              &ldquo;
+            </span>
+            <p class="text-offblack/60 text-sm leading-relaxed relative z-10 max-w-[55ch]">
+              {t.quote}
+            </p>
+            <div class="mt-6 flex items-center gap-3">
+              <div class="w-9 h-9 rounded-full bg-navy/[0.06] flex items-center justify-center text-[0.6rem] font-bold text-navy/50 shrink-0">
+                {t.initials}
+              </div>
+              <span class="text-xs font-medium text-navy/70 uppercase tracking-wider">{t.company}</span>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>

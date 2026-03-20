@@ -1,0 +1,78 @@
+---
+const reasons = [
+  {
+    title: 'Documentation, Sorted',
+    desc: 'From ICEGATE registration to RODTEP scrip generation — we handle the paperwork that slows everyone else down.',
+    icon: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M6 4h14l6 6v18H6z"/><path d="M20 4v6h6"/><path d="M11 16h10M11 20h6"/></svg>`,
+  },
+  {
+    title: 'Route Optimisation',
+    desc: 'We compare ocean, air, and road options to find the fastest path at the lowest landed cost — protecting your margins.',
+    icon: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><circle cx="6" cy="16" r="3"/><circle cx="26" cy="8" r="3"/><circle cx="26" cy="24" r="3"/><path d="M9 15l14-6M9 17l14 6"/></svg>`,
+  },
+  {
+    title: 'Visibility at Every Mile',
+    desc: 'Real-time container tracking, shipment alerts, and a single point of contact — so you always know where your cargo is.',
+    icon: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><circle cx="16" cy="14" r="10"/><path d="M16 8v6l4 4"/><path d="M12 28h8"/><path d="M16 24v4"/></svg>`,
+  },
+  {
+    title: 'Compliance-First',
+    desc: 'Duty calculations, HSN classification, and customs audits executed without guesswork. Zero penalties, zero delays.',
+    icon: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M16 4l12 6v8c0 6.6-5.1 12.3-12 14C9.1 30.3 4 24.6 4 18v-8l12-6z"/><path d="M11 16l4 4 7-7"/></svg>`,
+  },
+];
+---
+
+<section class="py-20 md:py-28 bg-navy relative overflow-hidden">
+  <!-- Subtle grid background -->
+  <div class="absolute inset-0 opacity-[0.03]" style="background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 60px 60px;"></div>
+
+  <div class="relative max-w-[1400px] mx-auto px-5 lg:px-8">
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-14 lg:gap-20 items-start">
+      <!-- Left column -->
+      <div class="lg:col-span-2 lg:sticky lg:top-28" data-reveal>
+        <p class="text-xs uppercase tracking-[0.25em] font-medium text-copper mb-4">Why Vishal</p>
+        <h2 class="font-display font-bold text-white text-3xl md:text-4xl lg:text-5xl tracking-tight leading-[1.05]">
+          Built for manufacturers who ship globally.
+        </h2>
+        <p class="mt-5 text-white/40 leading-relaxed max-w-[45ch]">
+          We started in 2022 with one focus: make international logistics less painful for Indian businesses. That focus has not changed.
+        </p>
+        <a
+          href="/contact"
+          class="mt-8 inline-flex items-center gap-2 border border-white/15 text-white text-sm font-medium
+                 px-6 py-3 rounded-lg hover:bg-white hover:text-navy transition-all duration-200"
+        >
+          Work With Us
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+        </a>
+      </div>
+
+      <!-- Right column — reasons -->
+      <div class="lg:col-span-3 space-y-6">
+        {
+          reasons.map((r, i) => (
+            <div
+              class="group p-6 md:p-8 rounded-2xl border border-white/6 bg-white/3
+                     hover:bg-white/6 transition-colors duration-300"
+              data-reveal
+              style={`--reveal-d:${i * 0.1}s`}
+            >
+              <div class="flex gap-5">
+                <div class="w-10 h-10 rounded-lg bg-copper/10 flex items-center justify-center text-copper shrink-0 mt-0.5"
+                  set:html={r.icon}
+                />
+                <div>
+                  <h3 class="font-display font-bold text-white text-lg">{r.title}</h3>
+                  <p class="mt-2 text-white/40 text-sm leading-relaxed">{r.desc}</p>
+                </div>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
