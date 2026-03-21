@@ -79,3 +79,7 @@ export const POST: APIRoute = async ({ request, redirect }) => {
     return new Response(`Failed to send email: ${error.message || 'Unknown error'}`, { status: 500 });
   }
 };
+
+export const GET: APIRoute = async ({ redirect }) => {
+  return redirect('/contact');
+};
