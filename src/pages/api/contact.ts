@@ -46,7 +46,8 @@ export const POST: APIRoute = async ({ request, redirect }) => {
 
   // Astro 6 / Cloudflare adapter v13: use import { env } from 'cloudflare:workers'
   const SEB = (env as any).SEB;
-  const destinationEmail = (env as any).DESTINATION_EMAIL || 'info@vishallogistics.in';
+  const senderEmail = 'noreply@vishallogistics.in';
+  const destinationEmail = (env as any).DESTINATION_EMAIL || 'vishallogistics22@gmail.com';
 
   if (!SEB) {
     console.error("Missing Cloudflare 'SEB' email binding.");
@@ -55,7 +56,7 @@ export const POST: APIRoute = async ({ request, redirect }) => {
 
   try {
     const raw = buildMimeEmail({
-      from: destinationEmail,
+      from: senderEmail,
       to: destinationEmail,
       replyTo: email,
       subject: `[Website] New request from ${name} - ${service}`,
@@ -70,7 +71,7 @@ export const POST: APIRoute = async ({ request, redirect }) => {
       `,
     });
 
-    const emailMessage = new EmailMessage(destinationEmail, destinationEmail, raw);
+    const emailMessage = new EmailMessage(senderEmail, destinationEmail, raw);
     await SEB.send(emailMessage);
 
     return redirect('/contact?sent=true');

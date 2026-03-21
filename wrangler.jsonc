@@ -16,7 +16,7 @@
     }
   ],
   "vars": {
-    "DESTINATION_EMAIL": "info@vishallogistics.in"
+    "DESTINATION_EMAIL": "vishallogistics22@gmail.com"
   },
   "observability": {
     "enabled": true
