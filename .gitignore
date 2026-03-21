@@ -14,6 +14,9 @@ node_modules/
 .astro/
 dist/
 
+# Cloudflare
+.wrangler/
+
 # System Files
 .DS_Store
 Thumbs.db
