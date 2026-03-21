@@ -2,7 +2,32 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { EmailMessage } from 'cloudflare:email';
-import { createMimeMessage } from 'mimetext';
+
+function buildMimeEmail({ from, to, replyTo, subject, html }: {
+  from: string; to: string; replyTo: string; subject: string; html: string;
+}) {
+  const boundary = `boundary_${Date.now()}_${Math.random().toString(36).substring(2)}`;
+  const messageId = `<${Date.now()}.${Math.random().toString(36).substring(2)}@vishallogistics.in>`;
+  const dateStr = new Date().toUTCString();
+
+  return [
+    `Message-ID: ${messageId}`,
+    `Date: ${dateStr}`,
+    `From: Website Quote Request <${from}>`,
+    `To: ${to}`,
+    `Reply-To: ${replyTo}`,
+    `Subject: ${subject}`,
+    `MIME-Version: 1.0`,
+    `Content-Type: multipart/alternative; boundary="${boundary}"`,
+    ``,
+    `--${boundary}`,
+    `Content-Type: text/html; charset=utf-8`,
+    `Content-Transfer-Encoding: quoted-printable`,
+    ``,
+    html,
+    `--${boundary}--`,
+  ].join('\r\n');
+}
 
 export const POST: APIRoute = async ({ request, redirect, locals }) => {
   const data = await request.formData();
@@ -30,15 +55,12 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
   const destinationEmail = env.DESTINATION_EMAIL || 'info@vishallogistics.in';
   
   try {
-    const msg = createMimeMessage();
-    msg.setSender({ name: "Website Quote Request", addr: destinationEmail });
-    msg.setRecipient(destinationEmail); 
-    msg.setHeader("Reply-To", email);
-    msg.setSubject(`[Website] New request from ${name} - ${service}`);
-    
-    msg.addMessage({
-      contentType: 'text/html',
-      data: `
+    const raw = buildMimeEmail({
+      from: destinationEmail,
+      to: destinationEmail,
+      replyTo: email,
+      subject: `[Website] New request from ${name} - ${service}`,
+      html: `
         <h2>New Quote Request via Website</h2>
         <p><strong>Name:</strong> ${name}</p>
         <p><strong>Email:</strong> ${email}</p>
@@ -52,7 +74,7 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
     const emailMessage = new EmailMessage(
       destinationEmail,
       destinationEmail,
-      msg.asRaw()
+      raw
     );
 
     // This native method sends the email instantly and completely free
