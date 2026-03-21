@@ -8,295 +8,507 @@
 ></canvas>
 
 <script>
-  import * as THREE from 'three';
-
   function initHero3D() {
-    const canvas = document.getElementById('hero-3d-canvas') as HTMLCanvasElement | null;
+    const canvas = document.getElementById('hero-3d-canvas') as HTMLCanvasElement;
     if (!canvas || canvas.dataset.initialized) return;
     canvas.dataset.initialized = 'true';
 
-    const container = canvas.parentElement;
+    const container = canvas.parentElement as HTMLElement;
     if (!container) return;
 
-    // ─── Configuration (all magic numbers extracted) ──────────────────
+    const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+    if (!ctx) return;
+
     const CONFIG = {
-      bg:           0xfdfbf7,
-      fogDensity:   0.03,
-      wireColor:    0x0c1e35,
-      wireOpacity:  0.12,
-      accentColor:  0xd4622b,
-      dotSize:      0.3,
-      dotOpacity:   0.75,
-      cameraZ:      22,
-      fov:          60,
-      plane:        { w: 60, h: 40, segX: 48, segY: 32 },
-      wave:         { speed: 0.4 },
-      ripple:       { speed: 10, lifetime: 4, maxAmp: 3.5, ampScale: 2.5 },
-      hover:        { radius: 6, strength: 1.5 },
-      parallax:     { x: 0.8, y: 0.4, lerp: 2 },
-      groupOffset:  { x: 8, rotX: -Math.PI * 0.1, rotY: -Math.PI * 0.1 },
-    } as const;
+      fogDensity: 0.03,
+      wireColor: 0x0c1e35,
+      wireOpacity: 0.12,
+      accentColor: 0xd4622b,
+      dotSize: 0.3,
+      dotOpacity: 0.75,
+      cameraZ: 22,
+      fov: 60,
+      plane: { w: 60, h: 40, segX: 48, segY: 32 },
+      wave: { speed: 0.4 },
+      ripple: { speed: 10, lifetime: 4, maxAmp: 3.5, ampScale: 2.5 },
+      hover: { radius: 6, strength: 1.5 },
+      parallax: { x: 0.8, y: 0.4, lerp: 2 },
+      groupOffset: { x: 8, rotX: -Math.PI * 0.1, rotY: -Math.PI * 0.1 },
+      hitPlaneHalf: 50,
+    };
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const motionScale   = reducedMotion ? 0.15 : 1;
+    const motionScale = reducedMotion ? 0.15 : 1;
 
-    // ─── Scene ────────────────────────────────────────────────────────
-    const scene  = new THREE.Scene();
-    scene.fog    = new THREE.FogExp2(CONFIG.bg, CONFIG.fogDensity);
+    const gridX = CONFIG.plane.segX + 1;
+    const gridY = CONFIG.plane.segY + 1;
+    const count = gridX * gridY;
 
-    const camera = new THREE.PerspectiveCamera(
-      CONFIG.fov,
-      container.clientWidth / container.clientHeight,
-      0.1,
-      100,
-    );
-    camera.position.set(0, 0, CONFIG.cameraZ);
+    const originals = new Float32Array(count * 3);
+    const screen = new Float32Array(count * 3);
 
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      alpha: true,
-      antialias: true,
-      powerPreference: 'high-performance',
-    });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(container.clientWidth, container.clientHeight);
+    const rotX = CONFIG.groupOffset.rotX;
+    const rotY = CONFIG.groupOffset.rotY;
+    const cx = Math.cos(rotX);
+    const sx = Math.sin(rotX);
+    const cy = Math.cos(rotY);
+    const sy = Math.sin(rotY);
 
-    // ─── Geometry + original-position snapshot ────────────────────────
-    const geometry  = new THREE.PlaneGeometry(
-      CONFIG.plane.w, CONFIG.plane.h,
-      CONFIG.plane.segX, CONFIG.plane.segY,
-    );
-    // One-liner copy instead of manual loop
-    const originals = new Float32Array(geometry.attributes.position.array as Float32Array);
-    geometry.setAttribute('aOriginalPosition', new THREE.BufferAttribute(originals, 3));
+    const planePoint = { x: CONFIG.groupOffset.x, y: 0, z: 0 };
+    const planeNormal = {
+      x: cx * sy,
+      y: -sx,
+      z: cx * cy,
+    };
 
-    // ─── Soft-circle dot texture (replaces hard squares) ──────────────
-    const dotTexture = (() => {
+    const tanHalfFov = Math.tan((CONFIG.fov * Math.PI) / 180 / 2);
+
+    let width = 1;
+    let height = 1;
+    let dpr = 1;
+    let aspect = 1;
+    let focalPx = 1;
+
+    const camera = { x: 0, y: 0, z: CONFIG.cameraZ };
+    const camTarget = { x: 0, y: 0 };
+    const camCurrent = { x: 0, y: 0 };
+
+    const basis = {
+      forward: { x: 0, y: 0, z: -1 },
+      right: { x: 1, y: 0, z: 0 },
+      up: { x: 0, y: 1, z: 0 },
+    };
+
+    const hoverPoint = { x: 0, y: 0, z: 0 };
+    const tmpHit = { x: 0, y: 0, z: 0 };
+    let hasHover = false;
+
+    const ripples: { x: number; y: number; startTime: number }[] = [];
+    let time = 0;
+    let frameId = 0;
+    let isVisible = true;
+    let lastNow = performance.now();
+
+    function hexToRgb(hex: number) {
+      return [(hex >> 16) & 255, (hex >> 8) & 255, hex & 255];
+    }
+
+    function rgbCss(hex: number) {
+      const [r, g, b] = hexToRgb(hex);
+      return `rgb(${r}, ${g}, ${b})`;
+    }
+
+    const wireCss = rgbCss(CONFIG.wireColor);
+    const [accentR, accentG, accentB] = hexToRgb(CONFIG.accentColor);
+
+    const dotSprite = (() => {
       const size = 64;
-      const c    = document.createElement('canvas');
+      const c = document.createElement('canvas');
       c.width = c.height = size;
-      const ctx  = c.getContext('2d')!;
+      const sctx = c.getContext('2d') as CanvasRenderingContext2D;
       const half = size / 2;
-      const g    = ctx.createRadialGradient(half, half, 0, half, half, half);
-      g.addColorStop(0,    'rgba(255,255,255,1)');
-      g.addColorStop(0.25, 'rgba(255,255,255,0.92)');
-      g.addColorStop(0.55, 'rgba(255,255,255,0.35)');
-      g.addColorStop(1,    'rgba(255,255,255,0)');
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, size, size);
-      return new THREE.CanvasTexture(c);
+      const g = sctx.createRadialGradient(half, half, 0, half, half, half);
+
+      g.addColorStop(0, `rgba(${accentR},${accentG},${accentB},1)`);
+      g.addColorStop(0.25, `rgba(${accentR},${accentG},${accentB},0.92)`);
+      g.addColorStop(0.55, `rgba(${accentR},${accentG},${accentB},0.35)`);
+      g.addColorStop(1, `rgba(${accentR},${accentG},${accentB},0)`);
+
+      sctx.fillStyle = g;
+      sctx.fillRect(0, 0, size, size);
+      return c;
     })();
 
-    // ─── Materials ────────────────────────────────────────────────────
-    const wireMaterial = new THREE.MeshBasicMaterial({
-      color:       CONFIG.wireColor,
-      wireframe:   true,
-      transparent: true,
-      opacity:     CONFIG.wireOpacity,
-    });
+    function resize() {
+      width = Math.max(1, container.clientWidth);
+      height = Math.max(1, container.clientHeight);
+      aspect = width / height;
+      focalPx = height / (2 * tanHalfFov);
 
-    const pointsMaterial = new THREE.PointsMaterial({
-      color:           CONFIG.accentColor,
-      size:            CONFIG.dotSize,
-      map:             dotTexture,
-      sizeAttenuation: true,
-      transparent:     true,
-      opacity:         CONFIG.dotOpacity,
-      depthWrite:      false,              // correct blending for transparency
-    });
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      canvas.style.width = width + 'px';
+      canvas.style.height = height + 'px';
 
-    // ─── Scene graph ──────────────────────────────────────────────────
-    const waveGroup = new THREE.Group();
-    waveGroup.position.x  = CONFIG.groupOffset.x;
-    waveGroup.rotation.x  = CONFIG.groupOffset.rotX;
-    waveGroup.rotation.y  = CONFIG.groupOffset.rotY;
-    waveGroup.add(
-      new THREE.Mesh(geometry, wireMaterial),
-      new THREE.Points(geometry, pointsMaterial),
-    );
-    scene.add(waveGroup);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.imageSmoothingEnabled = true;
+    }
 
-    // Invisible hit-plane aligned with wave for raycasting
-    const hitMaterial = new THREE.MeshBasicMaterial({ visible: false });
-    const hitMesh     = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), hitMaterial);
-    hitMesh.position.copy(waveGroup.position);
-    hitMesh.rotation.copy(waveGroup.rotation);
-    scene.add(hitMesh);
+    function updateCameraBasis() {
+      camera.x = camCurrent.x;
+      camera.y = camCurrent.y;
+      camera.z = CONFIG.cameraZ;
 
-    // ─── Interaction state ────────────────────────────────────────────
-    const raycaster  = new THREE.Raycaster();
-    const ndcVec     = new THREE.Vector2();          // reused every frame
-    const camTarget  = new THREE.Vector2();
-    const camCurrent = new THREE.Vector2();
-    const hoverPoint = new THREE.Vector3();
-    let   hasHover   = false;
+      let fx = -camera.x;
+      let fy = -camera.y;
+      let fz = -camera.z;
 
-    interface Ripple { origin: THREE.Vector3; startTime: number }
-    const ripples: Ripple[] = [];
-    let time      = 0;
-    let isVisible = true;
-    let frameId   = 0;
+      const fl = Math.hypot(fx, fy, fz) || 1;
+      fx /= fl;
+      fy /= fl;
+      fz /= fl;
 
-    // ─── Shared helpers ───────────────────────────────────────────────
-    /** Convert a pointer event to normalised-device-coordinates (reuses vec) */
-    function toNDC(e: PointerEvent): THREE.Vector2 {
-      const r = container!.getBoundingClientRect();
-      return ndcVec.set(
-        ((e.clientX - r.left) / r.width)  *  2 - 1,
-        -((e.clientY - r.top) / r.height) *  2 + 1,
+      let rx = -fz;
+      let ry = 0;
+      let rz = fx;
+
+      const rl = Math.hypot(rx, ry, rz) || 1;
+      rx /= rl;
+      ry /= rl;
+      rz /= rl;
+
+      const ux = ry * fz - rz * fy;
+      const uy = rz * fx - rx * fz;
+      const uz = rx * fy - ry * fx;
+
+      basis.forward.x = fx;
+      basis.forward.y = fy;
+      basis.forward.z = fz;
+
+      basis.right.x = rx;
+      basis.right.y = ry;
+      basis.right.z = rz;
+
+      basis.up.x = ux;
+      basis.up.y = uy;
+      basis.up.z = uz;
+    }
+
+    function fogFade(depth: number) {
+      return Math.exp(-Math.pow(CONFIG.fogDensity * depth, 2));
+    }
+
+    function toNDC(e: PointerEvent) {
+      const r = container.getBoundingClientRect();
+      return {
+        x: ((e.clientX - r.left) / r.width) * 2 - 1,
+        y: -((e.clientY - r.top) / r.height) * 2 + 1,
+      };
+    }
+
+    function raycastLocal(ndcX: number, ndcY: number, out: { x: number; y: number; z: number }) {
+      const dirCamX = ndcX * aspect * tanHalfFov;
+      const dirCamY = ndcY * tanHalfFov;
+      const dirCamZ = 1;
+
+      let dx =
+        basis.right.x * dirCamX +
+        basis.up.x * dirCamY +
+        basis.forward.x * dirCamZ;
+      let dy =
+        basis.right.y * dirCamX +
+        basis.up.y * dirCamY +
+        basis.forward.y * dirCamZ;
+      let dz =
+        basis.right.z * dirCamX +
+        basis.up.z * dirCamY +
+        basis.forward.z * dirCamZ;
+
+      const dl = Math.hypot(dx, dy, dz) || 1;
+      dx /= dl;
+      dy /= dl;
+      dz /= dl;
+
+      const denom =
+        dx * planeNormal.x +
+        dy * planeNormal.y +
+        dz * planeNormal.z;
+
+      if (Math.abs(denom) < 1e-6) return false;
+
+      const t =
+        ((planePoint.x - camera.x) * planeNormal.x +
+          (planePoint.y - camera.y) * planeNormal.y +
+          (planePoint.z - camera.z) * planeNormal.z) /
+        denom;
+
+      if (t <= 0) return false;
+
+      const wx = camera.x + dx * t;
+      const wy = camera.y + dy * t;
+      const wz = camera.z + dz * t;
+
+      const x0 = wx - CONFIG.groupOffset.x;
+      const y0 = wy;
+      const z0 = wz;
+
+      const ix = x0 * cy - z0 * sy;
+      const iz = x0 * sy + z0 * cy;
+
+      out.x = ix;
+      out.y = y0 * cx + iz * sx;
+      out.z = -y0 * sx + iz * cx;
+
+      return (
+        Math.abs(out.x) <= CONFIG.hitPlaneHalf &&
+        Math.abs(out.y) <= CONFIG.hitPlaneHalf
       );
     }
 
-    /** Raycast NDC → wave-local hit point.  Returns null on miss. */
-    function raycastLocal(ndc: THREE.Vector2, out: THREE.Vector3): boolean {
-      raycaster.setFromCamera(ndc, camera);
-      const hits = raycaster.intersectObject(hitMesh);
-      if (!hits.length) return false;
-      out.copy(hits[0].point);
-      waveGroup.worldToLocal(out);
-      return true;
+    function projectWorldToScreen(wx: number, wy: number, wz: number, outIndex: number) {
+      const relX = wx - camera.x;
+      const relY = wy - camera.y;
+      const relZ = wz - camera.z;
+
+      const xCam =
+        relX * basis.right.x +
+        relY * basis.right.y +
+        relZ * basis.right.z;
+
+      const yCam =
+        relX * basis.up.x +
+        relY * basis.up.y +
+        relZ * basis.up.z;
+
+      const zCam =
+        relX * basis.forward.x +
+        relY * basis.forward.y +
+        relZ * basis.forward.z;
+
+      const i = outIndex * 3;
+
+      if (zCam <= 0.01) {
+        screen[i] = 0;
+        screen[i + 1] = 0;
+        screen[i + 2] = -1;
+        return;
+      }
+
+      const ndcX = xCam / (zCam * tanHalfFov * aspect);
+      const ndcY = yCam / (zCam * tanHalfFov);
+
+      screen[i] = (ndcX * 0.5 + 0.5) * width;
+      screen[i + 1] = (-ndcY * 0.5 + 0.5) * height;
+      screen[i + 2] = zCam;
     }
 
-    // ─── Event handlers ───────────────────────────────────────────────
+    function drawWire() {
+      ctx.strokeStyle = wireCss;
+      ctx.globalAlpha = CONFIG.wireOpacity;
+      ctx.lineWidth = 1;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      ctx.beginPath();
+
+      for (let y = 0; y < gridY; y++) {
+        for (let x = 0; x < gridX; x++) {
+          const i = y * gridX + x;
+          const a = i * 3;
+
+          if (screen[a + 2] <= 0) continue;
+
+          if (x < gridX - 1) {
+            const j = i + 1;
+            const b = j * 3;
+            if (screen[b + 2] > 0) {
+              ctx.moveTo(screen[a], screen[a + 1]);
+              ctx.lineTo(screen[b], screen[b + 1]);
+            }
+          }
+
+          if (y < gridY - 1) {
+            const j = i + gridX;
+            const b = j * 3;
+            if (screen[b + 2] > 0) {
+              ctx.moveTo(screen[a], screen[a + 1]);
+              ctx.lineTo(screen[b], screen[b + 1]);
+            }
+          }
+        }
+      }
+
+      ctx.stroke();
+    }
+
+    function drawPoints() {
+      for (let i = 0; i < count; i++) {
+        const s = i * 3;
+        const depth = screen[s + 2];
+        if (depth <= 0) continue;
+
+        const px = screen[s];
+        const py = screen[s + 1];
+        const size = Math.max(2, (CONFIG.dotSize * focalPx) / depth);
+
+        if (
+          px < -size || px > width + size ||
+          py < -size || py > height + size
+        ) continue;
+
+        const alpha = CONFIG.dotOpacity * fogFade(depth);
+        if (alpha <= 0.01) continue;
+
+        ctx.globalAlpha = alpha;
+        ctx.drawImage(dotSprite, px - size / 2, py - size / 2, size, size);
+      }
+    }
+
+    function render() {
+      ctx.clearRect(0, 0, width, height);
+      drawWire();
+      drawPoints();
+      ctx.globalAlpha = 1;
+    }
+
     function onPointerDown(e: PointerEvent) {
-      const tmp = new THREE.Vector3();               // allocate only on click (rare)
-      if (raycastLocal(toNDC(e), tmp)) {
-        ripples.push({ origin: tmp, startTime: time });
+      const ndc = toNDC(e);
+      if (raycastLocal(ndc.x, ndc.y, tmpHit)) {
+        ripples.push({
+          x: tmpHit.x,
+          y: tmpHit.y,
+          startTime: time,
+        });
       }
     }
 
     function onPointerMove(e: PointerEvent) {
       const ndc = toNDC(e);
-      camTarget.set(ndc.x * CONFIG.parallax.x, ndc.y * CONFIG.parallax.y);
-      hasHover = raycastLocal(ndc, hoverPoint);      // reuses shared vec3
+      camTarget.x = ndc.x * CONFIG.parallax.x;
+      camTarget.y = ndc.y * CONFIG.parallax.y;
+      hasHover = raycastLocal(ndc.x, ndc.y, hoverPoint);
     }
 
     function onPointerLeave() {
-      camTarget.set(0, 0);
+      camTarget.x = 0;
+      camTarget.y = 0;
       hasHover = false;
     }
 
-    container.addEventListener('pointerdown',   onPointerDown);
-    container.addEventListener('pointermove',    onPointerMove);
-    container.addEventListener('pointerleave',   onPointerLeave);
-
-    // ─── Observers ────────────────────────────────────────────────────
-    const resizeObs = new ResizeObserver(() => {
-      camera.aspect = container.clientWidth / container.clientHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(container.clientWidth, container.clientHeight);
-    });
-    resizeObs.observe(container);
-
-    const visObs = new IntersectionObserver(
-      ([entry]) => { isVisible = entry.isIntersecting; },
-    );
-    visObs.observe(canvas);
-
-    // ─── Render loop ──────────────────────────────────────────────────
-    const clock = new THREE.Clock();
-
-    function animate() {
+    function animate(now: number) {
       frameId = requestAnimationFrame(animate);
-      if (!isVisible) return;
 
-      const dt = clock.getDelta();
+      if (!isVisible) {
+        lastNow = now;
+        return;
+      }
+
+      const dt = Math.min(0.05, (now - lastNow) / 1000);
+      lastNow = now;
+
       time += dt * CONFIG.wave.speed * motionScale;
 
-      // Expire dead ripples (reverse-iterate for safe splice)
       for (let i = ripples.length - 1; i >= 0; i--) {
         if (time - ripples[i].startTime > CONFIG.ripple.lifetime) {
           ripples.splice(i, 1);
         }
       }
 
-      // Smooth camera parallax
-      camCurrent.lerp(camTarget, dt * CONFIG.parallax.lerp);
-      camera.position.x = camCurrent.x;
-      camera.position.y = camCurrent.y;
-      camera.lookAt(0, 0, 0);
+      const lerp = Math.min(1, dt * CONFIG.parallax.lerp);
+      camCurrent.x += (camTarget.x - camCurrent.x) * lerp;
+      camCurrent.y += (camTarget.y - camCurrent.y) * lerp;
 
-      // ── Per-vertex wave update ──────────────────────────────────────
-      const pos  = geometry.attributes.position;
-      const orig = geometry.attributes.aOriginalPosition;
-      const rLen = ripples.length;
+      updateCameraBasis();
 
-      for (let i = 0; i < pos.count; i++) {
-        const ox = orig.getX(i);
-        const oy = orig.getY(i);
+      for (let i = 0; i < count; i++) {
+        const p = i * 3;
+        const ox = originals[p];
+        const oy = originals[p + 1];
 
-        // Base undulation
         let z =
-          Math.sin(ox * 0.2  + time * 1.2) * 0.8 +
+          Math.sin(ox * 0.2 + time * 1.2) * 0.8 +
           Math.cos(oy * 0.25 - time * 0.9) * 0.6;
 
-        // Hover bump — smooth quadratic falloff under cursor
         if (hasHover) {
           const dx = ox - hoverPoint.x;
           const dy = oy - hoverPoint.y;
-          const t  = Math.max(0, 1 - Math.sqrt(dx * dx + dy * dy) / CONFIG.hover.radius);
+          const t = Math.max(
+            0,
+            1 - Math.sqrt(dx * dx + dy * dy) / CONFIG.hover.radius
+          );
           z += t * t * CONFIG.hover.strength;
         }
 
-        // Click-ripple contributions (skipped entirely when empty)
-        if (rLen > 0) {
+        if (ripples.length > 0) {
           let rz = 0;
-          for (let j = 0; j < rLen; j++) {
-            const r    = ripples[j];
-            const dx   = ox - r.origin.x;
-            const dy   = oy - r.origin.y;
+
+          for (let j = 0; j < ripples.length; j++) {
+            const r = ripples[j];
+            const dx = ox - r.x;
+            const dy = oy - r.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
-            const age  = time - r.startTime;
+            const age = time - r.startTime;
             const front = age * CONFIG.ripple.speed;
 
             const damping =
-              (1 / (1 + dist * 0.2)) *                             // spatial falloff
-              Math.min(1, age * 3.33) *                            // soft intro
-              Math.max(0, 1 - age / CONFIG.ripple.lifetime) *      // fade out
-              Math.max(0, 1 - Math.max(0, dist - front) * 0.5);   // wavefront edge
+              (1 / (1 + dist * 0.2)) *
+              Math.min(1, age * 3.33) *
+              Math.max(0, 1 - age / CONFIG.ripple.lifetime) *
+              Math.max(0, 1 - Math.max(0, dist - front) * 0.5);
 
             if (damping > 0.001) {
-              rz += Math.cos(dist * 0.8 - age * 6) * CONFIG.ripple.ampScale * damping;
+              rz +=
+                Math.cos(dist * 0.8 - age * 6) *
+                CONFIG.ripple.ampScale *
+                damping;
             }
           }
-          z += Math.max(-CONFIG.ripple.maxAmp, Math.min(CONFIG.ripple.maxAmp, rz));
+
+          z += Math.max(
+            -CONFIG.ripple.maxAmp,
+            Math.min(CONFIG.ripple.maxAmp, rz)
+          );
         }
 
-        pos.setZ(i, z);
+        const y1 = oy * cx - z * sx;
+        const z1 = oy * sx + z * cx;
+        const x1 = ox;
+
+        const wx = x1 * cy + z1 * sy + CONFIG.groupOffset.x;
+        const wy = y1;
+        const wz = -x1 * sy + z1 * cy;
+
+        projectWorldToScreen(wx, wy, wz, i);
       }
 
-      pos.needsUpdate = true;
-      // ❌ REMOVED: computeVertexNormals() — MeshBasicMaterial ignores normals
-      renderer.render(scene, camera);
+      render();
     }
 
-    animate();
+    const stepX = CONFIG.plane.w / CONFIG.plane.segX;
+    const stepY = CONFIG.plane.h / CONFIG.plane.segY;
+    const startX = -CONFIG.plane.w / 2;
+    const startY = -CONFIG.plane.h / 2;
 
-    // ─── Cleanup on Astro page swap (prevents memory leak) ────────────
+    for (let y = 0; y < gridY; y++) {
+      for (let x = 0; x < gridX; x++) {
+        const i = (y * gridX + x) * 3;
+        originals[i] = startX + x * stepX;
+        originals[i + 1] = startY + y * stepY;
+        originals[i + 2] = 0;
+      }
+    }
+
+    resize();
+    updateCameraBasis();
+
+    container.addEventListener('pointerdown', onPointerDown);
+    container.addEventListener('pointermove', onPointerMove);
+    container.addEventListener('pointerleave', onPointerLeave);
+
+    const resizeObs = new ResizeObserver(() => resize());
+    resizeObs.observe(container);
+
+    const visObs = new IntersectionObserver(([entry]) => {
+      isVisible = entry.isIntersecting;
+    });
+    visObs.observe(canvas);
+
+    frameId = requestAnimationFrame(animate);
+
     function dispose() {
       cancelAnimationFrame(frameId);
-
-      container!.removeEventListener('pointerdown',  onPointerDown);
-      container!.removeEventListener('pointermove',   onPointerMove);
-      container!.removeEventListener('pointerleave',  onPointerLeave);
+      container.removeEventListener('pointerdown', onPointerDown);
+      container.removeEventListener('pointermove', onPointerMove);
+      container.removeEventListener('pointerleave', onPointerLeave);
       resizeObs.disconnect();
       visObs.disconnect();
-
-      geometry.dispose();
-      wireMaterial.dispose();
-      pointsMaterial.dispose();
-      dotTexture.dispose();
-      hitMesh.geometry.dispose();
-      hitMaterial.dispose();
-      renderer.dispose();
-
-      delete canvas!.dataset.initialized;
+      delete canvas.dataset.initialized;
     }
 
     document.addEventListener('astro:before-swap', dispose, { once: true });
   }
 
-  // Both hooks ensure init on first load AND Astro client-side navigations
   document.addEventListener('astro:page-load', initHero3D);
   initHero3D();
 </script>

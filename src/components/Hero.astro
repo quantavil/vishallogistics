@@ -3,14 +3,14 @@
 import NetworkWave3D from './NetworkWave3D.astro';
 ---
 
-<section class="relative overflow-hidden bg-cream pt-28 pb-16 md:pt-0 md:pb-0 md:min-h-dvh md:flex md:items-center">
+<section class="relative overflow-hidden bg-cream pt-20 pb-12 md:pt-0 md:pb-0 md:min-h-[60vh] lg:min-h-[92vh] md:flex md:items-center">
   <!-- Interactive 3D Background mapped to vertical component -->
   <NetworkWave3D />
   
   <div class="max-w-[1400px] mx-auto px-5 lg:px-8 w-full relative z-10 pointer-events-none">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center pointer-events-auto">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-6 lg:gap-12 items-center pointer-events-auto">
       <!-- Text -->
-      <div class="order-2 lg:order-1">
+      <div class="mt-12 md:mt-16 lg:mt-0">
         <p
           class="text-xs uppercase tracking-[0.25em] font-medium text-copper mb-6"
           data-reveal
@@ -70,8 +70,7 @@ import NetworkWave3D from './NetworkWave3D.astro';
         </div>
       </div>
 
-      <!-- Visual Column (Empty to let background show) -->
-      <div class="order-1 lg:order-2 flex justify-center lg:justify-end min-h-[320px] lg:min-h-[480px]">
+      <div class="flex justify-center md:justify-end min-h-[280px] md:min-h-[320px] lg:min-h-[480px]">
         <!-- The 3D wave lives in the background, allowing it to be massive and unconstrained -->
       </div>
     </div>
