@@ -1,6 +1,7 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
+import { env } from 'cloudflare:workers';
 import { EmailMessage } from 'cloudflare:email';
 
 function buildMimeEmail({ from, to, replyTo, subject, html }: {
@@ -29,9 +30,9 @@ function buildMimeEmail({ from, to, replyTo, subject, html }: {
   ].join('\r\n');
 }
 
-export const POST: APIRoute = async ({ request, redirect, locals }) => {
+export const POST: APIRoute = async ({ request, redirect }) => {
   const data = await request.formData();
-  
+
   const name = data.get('name')?.toString() || 'Unknown';
   const email = data.get('email')?.toString() || 'Unknown';
   const phone = data.get('phone')?.toString() || 'Not provided';
@@ -39,21 +40,19 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
   const messageStr = data.get('message')?.toString() || 'No message';
   const honey = data.get('_honey')?.toString();
 
-  // Basic honeypot check (hidden field)
   if (honey) {
     return new Response('Spam detected', { status: 400 });
   }
 
-  // The binding name inside Cloudflare must be SEB (Send Email Binding)
-  const env = (locals as any).runtime?.env;
-  if (!env || !env.SEB) {
-    console.error("Missing Cloudflare 'SEB' email binding. Ensure you added it in the Cloudflare Dashboard under Pages -> Settings -> Functions -> Send Email bindings.");
+  // Astro 6 / Cloudflare adapter v13: use import { env } from 'cloudflare:workers'
+  const SEB = (env as any).SEB;
+  const destinationEmail = (env as any).DESTINATION_EMAIL || 'info@vishallogistics.in';
+
+  if (!SEB) {
+    console.error("Missing Cloudflare 'SEB' email binding.");
     return new Response('Server Configuration Error: Missing SEB binding', { status: 500 });
   }
 
-  // The verified email address in Cloudflare Email Routing
-  const destinationEmail = env.DESTINATION_EMAIL || 'info@vishallogistics.in';
-  
   try {
     const raw = buildMimeEmail({
       from: destinationEmail,
@@ -68,18 +67,12 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
         <p><strong>Service Needed:</strong> ${service}</p>
         <p><strong>Message:</strong></p>
         <p style="background: #f5f5f5; padding: 15px; border-radius: 5px;">${messageStr.replace(/\n/g, '<br>')}</p>
-      `
+      `,
     });
 
-    const emailMessage = new EmailMessage(
-      destinationEmail,
-      destinationEmail,
-      raw
-    );
+    const emailMessage = new EmailMessage(destinationEmail, destinationEmail, raw);
+    await SEB.send(emailMessage);
 
-    // This native method sends the email instantly and completely free
-    await env.SEB.send(emailMessage);
-    
     return redirect('/contact?sent=true');
   } catch (error: any) {
     console.error('Failed to send email:', error);
