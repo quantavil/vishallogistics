@@ -27,17 +27,13 @@ import Layout from '../layouts/Layout.astro';
     <div class="max-w-[1400px] mx-auto px-5 lg:px-8">
       <div class="grid grid-cols-1 lg:grid-cols-5 gap-10 lg:gap-16">
         <!-- Form -->
-        <div class="lg:col-span-3" data-reveal>
           <form
-            action="https://formsubmit.co/info@vishallogistics.in"
+            action="/api/contact"
             method="POST"
             class="space-y-6"
           >
-            <!-- FormSubmit config -->
-            <input type="hidden" name="_subject" value="New Quote Request — vishallogistics.in" />
-            <input type="hidden" name="_captcha" value="false" />
-            <input type="hidden" name="_next" value="https://vishallogistics.in/contact?sent=true" />
-            <input type="text" name="_honey" style="display:none" />
+            <!-- Native Honeypot -->
+            <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off" />
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
