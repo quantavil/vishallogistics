@@ -1,10 +1,14 @@
 ---
 // src/components/Hero.astro
+import NetworkWave3D from './NetworkWave3D.astro';
 ---
 
 <section class="relative overflow-hidden bg-cream pt-28 pb-16 md:pt-0 md:pb-0 md:min-h-dvh md:flex md:items-center">
-  <div class="max-w-[1400px] mx-auto px-5 lg:px-8 w-full">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+  <!-- Interactive 3D Background mapped to vertical component -->
+  <NetworkWave3D />
+  
+  <div class="max-w-[1400px] mx-auto px-5 lg:px-8 w-full relative z-10 pointer-events-none">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center pointer-events-auto">
       <!-- Text -->
       <div class="order-2 lg:order-1">
         <p
@@ -66,78 +70,9 @@
         </div>
       </div>
 
-      <!-- Visual — animated globe -->
-      <div class="order-1 lg:order-2 flex justify-center lg:justify-end" data-reveal="right" style="--reveal-d:0.2s">
-        <div class="relative w-[320px] h-[320px] sm:w-[400px] sm:h-[400px] lg:w-[480px] lg:h-[480px]">
-          <!-- Glow -->
-          <div class="absolute inset-0 rounded-full bg-copper/5 blur-3xl scale-90"></div>
-
-          <svg
-            viewBox="0 0 400 400"
-            class="w-full h-full animate-globe"
-            fill="none"
-          >
-            <!-- Outer ring -->
-            <circle cx="200" cy="200" r="170" stroke="#0C1E35" stroke-width="0.5" opacity="0.12" />
-            <circle cx="200" cy="200" r="150" stroke="#D4622B" stroke-width="1" opacity="0.25" />
-            <circle cx="200" cy="200" r="120" stroke="#0C1E35" stroke-width="0.5" opacity="0.08" />
-
-            <!-- Meridians -->
-            <ellipse cx="200" cy="200" rx="90" ry="150" stroke="#0C1E35" stroke-width="0.5" opacity="0.08" />
-            <ellipse cx="200" cy="200" rx="45" ry="150" stroke="#0C1E35" stroke-width="0.5" opacity="0.06" />
-
-            <!-- Parallels -->
-            <ellipse cx="200" cy="200" rx="150" ry="50" stroke="#0C1E35" stroke-width="0.5" opacity="0.06" />
-            <ellipse cx="200" cy="200" rx="150" ry="100" stroke="#0C1E35" stroke-width="0.5" opacity="0.06" />
-          </svg>
-
-          <!-- Floating route lines (non-rotating) -->
-          <svg
-            viewBox="0 0 400 400"
-            class="absolute inset-0 w-full h-full"
-            fill="none"
-          >
-            <!-- Route 1 -->
-            <path
-              d="M95 175 Q200 110 310 155"
-              stroke="#D4622B"
-              stroke-width="2"
-              stroke-dasharray="6 4"
-              opacity="0.6"
-            >
-              <animate attributeName="stroke-dashoffset" from="0" to="-10" dur="1s" repeatCount="indefinite" />
-            </path>
-            <!-- Route 2 -->
-            <path
-              d="M110 245 Q210 190 320 225"
-              stroke="#D4622B"
-              stroke-width="1.5"
-              stroke-dasharray="6 4"
-              opacity="0.35"
-            >
-              <animate attributeName="stroke-dashoffset" from="0" to="-10" dur="1.4s" repeatCount="indefinite" />
-            </path>
-
-            <!-- Nodes -->
-            <circle cx="95" cy="175" r="5" fill="#D4622B" opacity="0.8">
-              <animate attributeName="r" values="4;6;4" dur="2.5s" repeatCount="indefinite" />
-            </circle>
-            <circle cx="310" cy="155" r="4" fill="#0C1E35" opacity="0.5" />
-            <circle cx="110" cy="245" r="3.5" fill="#D4622B" opacity="0.5" />
-            <circle cx="320" cy="225" r="4.5" fill="#0C1E35" opacity="0.4">
-              <animate attributeName="r" values="3.5;5;3.5" dur="3s" repeatCount="indefinite" />
-            </circle>
-            <circle cx="200" cy="130" r="3" fill="#D4622B" opacity="0.3" />
-          </svg>
-
-          <!-- Large V watermark -->
-          <span
-            class="absolute -bottom-4 -right-4 font-display font-extrabold text-[12rem]
-                   text-navy/[0.03] select-none pointer-events-none leading-none"
-          >
-            V
-          </span>
-        </div>
+      <!-- Visual Column (Empty to let background show) -->
+      <div class="order-1 lg:order-2 flex justify-center lg:justify-end min-h-[320px] lg:min-h-[480px]">
+        <!-- The 3D wave lives in the background, allowing it to be massive and unconstrained -->
       </div>
     </div>
   </div>
