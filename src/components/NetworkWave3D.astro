@@ -3,21 +3,24 @@
 ---
 
 <canvas
-  id="hero-3d-canvas"
+  data-hero-3d-canvas
   class="absolute inset-0 w-full h-full z-0 pointer-events-auto cursor-grab active:cursor-grabbing"
 ></canvas>
 
 <script>
-  function initHero3D() {
-    const canvas = document.getElementById('hero-3d-canvas') as HTMLCanvasElement;
+  function initHero3D(canvas: HTMLCanvasElement) {
     if (!canvas || canvas.dataset.initialized) return;
-    canvas.dataset.initialized = 'true';
 
-    const container = canvas.parentElement as HTMLElement;
+    const container = canvas.parentElement as HTMLElement | null;
     if (!container) return;
 
-    const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+    const ctx = canvas.getContext('2d') as CanvasRenderingContext2D | null;
     if (!ctx) return;
+
+    canvas.dataset.initialized = 'true';
+
+    const clamp = (value: number, min: number, max: number) =>
+      Math.max(min, Math.min(max, value));
 
     const CONFIG = {
       fogDensity: 0.03,
@@ -33,12 +36,20 @@
       ripple: { speed: 10, lifetime: 4, maxAmp: 3.5, ampScale: 2.5 },
       hover: { radius: 6, strength: 1.5 },
       parallax: { x: 0.8, y: 0.4, lerp: 2 },
-      groupOffset: { x: 8, rotX: -Math.PI * 0.1, rotY: -Math.PI * 0.1 },
+
+      // moved a bit more to the LEFT
+      groupOffset: { x: 6, rotX: -Math.PI * 0.1, rotY: -Math.PI * 0.1 },
+
       hitPlaneHalf: 50,
     };
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const motionScale = reducedMotion ? 0.15 : 1;
+    const interactionScale = reducedMotion ? 0.6 : 1;
+
+    const hoverStrength = CONFIG.hover.strength * interactionScale;
+    const rippleAmpScale = CONFIG.ripple.ampScale * interactionScale;
+    const rippleMaxAmp = CONFIG.ripple.maxAmp * interactionScale;
 
     const gridX = CONFIG.plane.segX + 1;
     const gridY = CONFIG.plane.segY + 1;
@@ -84,10 +95,14 @@
     let hasHover = false;
 
     const ripples: { x: number; y: number; startTime: number }[] = [];
-    let time = 0;
+
+    let elapsed = 0;   // real elapsed time
+    let waveTime = 0;  // animation-only time
+
     let frameId = 0;
-    let isVisible = true;
     let lastNow = performance.now();
+    let isIntersecting = true;
+    let disposed = false;
 
     function hexToRgb(hex: number) {
       return [(hex >> 16) & 255, (hex >> 8) & 255, hex & 255];
@@ -105,7 +120,10 @@
       const size = 64;
       const c = document.createElement('canvas');
       c.width = c.height = size;
-      const sctx = c.getContext('2d') as CanvasRenderingContext2D;
+
+      const sctx = c.getContext('2d');
+      if (!sctx) return c;
+
       const half = size / 2;
       const g = sctx.createRadialGradient(half, half, 0, half, half, half);
 
@@ -120,19 +138,17 @@
     })();
 
     function resize() {
-      width = Math.max(1, container.clientWidth);
-      height = Math.max(1, container.clientHeight);
+      width = Math.max(1, container!.clientWidth);
+      height = Math.max(1, container!.clientHeight);
       aspect = width / height;
       focalPx = height / (2 * tanHalfFov);
 
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
-      canvas.style.width = width + 'px';
-      canvas.style.height = height + 'px';
 
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.imageSmoothingEnabled = true;
+      ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx!.imageSmoothingEnabled = true;
     }
 
     function updateCameraBasis() {
@@ -180,14 +196,18 @@
     }
 
     function toNDC(e: PointerEvent) {
-      const r = container.getBoundingClientRect();
+      const r = container!.getBoundingClientRect();
       return {
         x: ((e.clientX - r.left) / r.width) * 2 - 1,
         y: -((e.clientY - r.top) / r.height) * 2 + 1,
       };
     }
 
-    function raycastLocal(ndcX: number, ndcY: number, out: { x: number; y: number; z: number }) {
+    function raycastLocal(
+      ndcX: number,
+      ndcY: number,
+      out: { x: number; y: number; z: number }
+    ) {
       const dirCamX = ndcX * aspect * tanHalfFov;
       const dirCamY = ndcY * tanHalfFov;
       const dirCamZ = 1;
@@ -196,10 +216,12 @@
         basis.right.x * dirCamX +
         basis.up.x * dirCamY +
         basis.forward.x * dirCamZ;
+
       let dy =
         basis.right.y * dirCamX +
         basis.up.y * dirCamY +
         basis.forward.y * dirCamZ;
+
       let dz =
         basis.right.z * dirCamX +
         basis.up.z * dirCamY +
@@ -284,13 +306,13 @@
     }
 
     function drawWire() {
-      ctx.strokeStyle = wireCss;
-      ctx.globalAlpha = CONFIG.wireOpacity;
-      ctx.lineWidth = 1;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
+      ctx!.strokeStyle = wireCss;
+      ctx!.globalAlpha = CONFIG.wireOpacity;
+      ctx!.lineWidth = 1;
+      ctx!.lineCap = 'round';
+      ctx!.lineJoin = 'round';
 
-      ctx.beginPath();
+      ctx!.beginPath();
 
       for (let y = 0; y < gridY; y++) {
         for (let x = 0; x < gridX; x++) {
@@ -303,8 +325,8 @@
             const j = i + 1;
             const b = j * 3;
             if (screen[b + 2] > 0) {
-              ctx.moveTo(screen[a], screen[a + 1]);
-              ctx.lineTo(screen[b], screen[b + 1]);
+              ctx!.moveTo(screen[a], screen[a + 1]);
+              ctx!.lineTo(screen[b], screen[b + 1]);
             }
           }
 
@@ -312,14 +334,14 @@
             const j = i + gridX;
             const b = j * 3;
             if (screen[b + 2] > 0) {
-              ctx.moveTo(screen[a], screen[a + 1]);
-              ctx.lineTo(screen[b], screen[b + 1]);
+              ctx!.moveTo(screen[a], screen[a + 1]);
+              ctx!.lineTo(screen[b], screen[b + 1]);
             }
           }
         }
       }
 
-      ctx.stroke();
+      ctx!.stroke();
     }
 
     function drawPoints() {
@@ -332,24 +354,23 @@
         const py = screen[s + 1];
         const size = Math.max(2, (CONFIG.dotSize * focalPx) / depth);
 
-        if (
-          px < -size || px > width + size ||
-          py < -size || py > height + size
-        ) continue;
+        if (px < -size || px > width + size || py < -size || py > height + size) {
+          continue;
+        }
 
         const alpha = CONFIG.dotOpacity * fogFade(depth);
         if (alpha <= 0.01) continue;
 
-        ctx.globalAlpha = alpha;
-        ctx.drawImage(dotSprite, px - size / 2, py - size / 2, size, size);
+        ctx!.globalAlpha = alpha;
+        ctx!.drawImage(dotSprite, px - size / 2, py - size / 2, size, size);
       }
     }
 
     function render() {
-      ctx.clearRect(0, 0, width, height);
+      ctx!.clearRect(0, 0, width, height);
       drawWire();
       drawPoints();
-      ctx.globalAlpha = 1;
+      ctx!.globalAlpha = 1;
     }
 
     function onPointerDown(e: PointerEvent) {
@@ -358,7 +379,7 @@
         ripples.push({
           x: tmpHit.x,
           y: tmpHit.y,
-          startTime: time,
+          startTime: elapsed,
         });
       }
     }
@@ -379,18 +400,14 @@
     function animate(now: number) {
       frameId = requestAnimationFrame(animate);
 
-      if (!isVisible) {
-        lastNow = now;
-        return;
-      }
-
       const dt = Math.min(0.05, (now - lastNow) / 1000);
       lastNow = now;
 
-      time += dt * CONFIG.wave.speed * motionScale;
+      elapsed += dt;
+      waveTime += dt * CONFIG.wave.speed * motionScale;
 
       for (let i = ripples.length - 1; i >= 0; i--) {
-        if (time - ripples[i].startTime > CONFIG.ripple.lifetime) {
+        if (elapsed - ripples[i].startTime > CONFIG.ripple.lifetime) {
           ripples.splice(i, 1);
         }
       }
@@ -407,8 +424,8 @@
         const oy = originals[p + 1];
 
         let z =
-          Math.sin(ox * 0.2 + time * 1.2) * 0.8 +
-          Math.cos(oy * 0.25 - time * 0.9) * 0.6;
+          Math.sin(ox * 0.2 + waveTime * 1.2) * 0.8 +
+          Math.cos(oy * 0.25 - waveTime * 0.9) * 0.6;
 
         if (hasHover) {
           const dx = ox - hoverPoint.x;
@@ -417,7 +434,7 @@
             0,
             1 - Math.sqrt(dx * dx + dy * dy) / CONFIG.hover.radius
           );
-          z += t * t * CONFIG.hover.strength;
+          z += t * t * hoverStrength;
         }
 
         if (ripples.length > 0) {
@@ -428,7 +445,7 @@
             const dx = ox - r.x;
             const dy = oy - r.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
-            const age = time - r.startTime;
+            const age = elapsed - r.startTime;
             const front = age * CONFIG.ripple.speed;
 
             const damping =
@@ -438,17 +455,11 @@
               Math.max(0, 1 - Math.max(0, dist - front) * 0.5);
 
             if (damping > 0.001) {
-              rz +=
-                Math.cos(dist * 0.8 - age * 6) *
-                CONFIG.ripple.ampScale *
-                damping;
+              rz += Math.cos(dist * 0.8 - age * 6) * rippleAmpScale * damping;
             }
           }
 
-          z += Math.max(
-            -CONFIG.ripple.maxAmp,
-            Math.min(CONFIG.ripple.maxAmp, rz)
-          );
+          z += clamp(rz, -rippleMaxAmp, rippleMaxAmp);
         }
 
         const y1 = oy * cx - z * sx;
@@ -465,6 +476,23 @@
       render();
     }
 
+    function startAnimation() {
+      if (frameId) return;
+      lastNow = performance.now();
+      frameId = requestAnimationFrame(animate);
+    }
+
+    function stopAnimation() {
+      if (!frameId) return;
+      cancelAnimationFrame(frameId);
+      frameId = 0;
+    }
+
+    function syncAnimationState() {
+      if (isIntersecting && !document.hidden) startAnimation();
+      else stopAnimation();
+    }
+
     const stepX = CONFIG.plane.w / CONFIG.plane.segX;
     const stepY = CONFIG.plane.h / CONFIG.plane.segY;
     const startX = -CONFIG.plane.w / 2;
@@ -479,36 +507,64 @@
       }
     }
 
-    resize();
-    updateCameraBasis();
+    function onVisibilityChange() {
+      syncAnimationState();
+    }
 
-    container.addEventListener('pointerdown', onPointerDown);
-    container.addEventListener('pointermove', onPointerMove);
-    container.addEventListener('pointerleave', onPointerLeave);
-
-    const resizeObs = new ResizeObserver(() => resize());
-    resizeObs.observe(container);
-
+    const resizeObs = new ResizeObserver(resize);
     const visObs = new IntersectionObserver(([entry]) => {
-      isVisible = entry.isIntersecting;
+      isIntersecting = !!entry?.isIntersecting;
+      syncAnimationState();
     });
-    visObs.observe(canvas);
-
-    frameId = requestAnimationFrame(animate);
 
     function dispose() {
-      cancelAnimationFrame(frameId);
-      container.removeEventListener('pointerdown', onPointerDown);
-      container.removeEventListener('pointermove', onPointerMove);
-      container.removeEventListener('pointerleave', onPointerLeave);
+      if (disposed) return;
+      disposed = true;
+
+      stopAnimation();
+
+      container!.removeEventListener('pointerdown', onPointerDown);
+      container!.removeEventListener('pointermove', onPointerMove);
+      container!.removeEventListener('pointerleave', onPointerLeave);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+      document.removeEventListener('astro:before-swap', dispose);
+
       resizeObs.disconnect();
       visObs.disconnect();
+
       delete canvas.dataset.initialized;
     }
 
+    resize();
+    updateCameraBasis();
+
+    container!.addEventListener('pointerdown', onPointerDown);
+    container!.addEventListener('pointermove', onPointerMove);
+    container!.addEventListener('pointerleave', onPointerLeave);
+
+    document.addEventListener('visibilitychange', onVisibilityChange);
     document.addEventListener('astro:before-swap', dispose, { once: true });
+
+    resizeObs.observe(container!);
+    visObs.observe(container!);
+
+    syncAnimationState();
   }
 
-  document.addEventListener('astro:page-load', initHero3D);
-  initHero3D();
+  function initAllHero3D() {
+    document
+      .querySelectorAll('[data-hero-3d-canvas]')
+      .forEach((el) => initHero3D(el as HTMLCanvasElement));
+  }
+
+  const hero3DWindow = window as Window & {
+    __hero3DPageLoadBound?: boolean;
+  };
+
+  if (!hero3DWindow.__hero3DPageLoadBound) {
+    document.addEventListener('astro:page-load', initAllHero3D);
+    hero3DWindow.__hero3DPageLoadBound = true;
+  }
+
+  initAllHero3D();
 </script>
