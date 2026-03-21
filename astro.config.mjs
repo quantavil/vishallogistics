@@ -6,8 +6,10 @@ import cloudflare from '@astrojs/cloudflare';
 
 export default defineConfig({
   site: 'https://vishallogistics.in',
-  output: 'static',
-  adapter: cloudflare(),
+  // No output field — adapter defaults to 'server'
+  adapter: cloudflare({
+    imageService: 'compile',
+  }),
   integrations: [sitemap()],
   vite: {
     plugins: [tailwindcss()],

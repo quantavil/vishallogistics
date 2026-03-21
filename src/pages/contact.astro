@@ -1,5 +1,7 @@
 ---
 // src/pages/contact.astro
+export const prerender = true;
+
 import Layout from '../layouts/Layout.astro';
 ---
 
@@ -27,6 +29,7 @@ import Layout from '../layouts/Layout.astro';
     <div class="max-w-[1400px] mx-auto px-5 lg:px-8">
       <div class="grid grid-cols-1 lg:grid-cols-5 gap-10 lg:gap-16">
         <!-- Form -->
+        <div class="lg:col-span-3" data-reveal>
           <form
             action="/api/contact"
             method="POST"
