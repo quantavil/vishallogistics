@@ -61,6 +61,11 @@
   }
 }
 
+/* ── Mobile nav stagger ── */
+@keyframes navLinkIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* ── Marquee ── */
 @keyframes marquee {
   0% { transform: translateX(0); }
@@ -73,15 +78,6 @@
   animation: marquee 50s linear infinite;
 }
 
-/* ── Globe spin ── */
-@keyframes globe-spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-.animate-globe {
-  animation: globe-spin 90s linear infinite;
-}
-
 /* ── Pulse dot ── */
 @keyframes pulse-ring {
   0%   { transform: scale(1); opacity: 0.5; }
@@ -89,15 +85,6 @@
 }
 .animate-pulse-ring {
   animation: pulse-ring 2s ease-out infinite;
-}
-
-/* ── Float ── */
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-12px); }
-}
-.animate-float {
-  animation: float 6s ease-in-out infinite;
 }
 
 /* ── Reduced motion ── */
@@ -109,8 +96,6 @@
   }
   .animate-marquee,
   .animate-marquee-slow,
-  .animate-globe,
-  .animate-float,
   .animate-pulse-ring {
     animation: none;
   }

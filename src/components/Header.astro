@@ -96,6 +96,14 @@ const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
     </nav>
   </div>
 
+  <!-- Mobile drawer backdrop -->
+  <div
+    id="mobile-backdrop"
+    class="md:hidden fixed inset-0 top-20 bg-navy/20 backdrop-blur-sm z-20 
+           opacity-0 pointer-events-none transition-opacity duration-500"
+    aria-hidden="true"
+  ></div>
+
   <!-- Mobile drawer -->
   <div
     id="mobile-drawer"
@@ -105,7 +113,7 @@ const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
   >
     <div class="flex flex-col px-8 pt-12 gap-6 h-full">
       {
-        nav.map((n) => {
+        nav.map((n, i) => {
           const isActive =
             n.href === '/'
               ? pathname === '/'
@@ -114,9 +122,11 @@ const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
             <a
               href={n.href}
               class:list={[
-                'text-2xl font-display font-bold transition-colors mobile-link',
+                'text-2xl font-display font-bold transition-all mobile-link',
+                'opacity-0 translate-y-4',
                 isActive ? 'text-copper' : 'text-navy hover:text-copper',
               ]}
+              style={`animation: navLinkIn 0.4s cubic-bezier(0.16,1,0.3,1) ${0.1 + i * 0.07}s forwards`}
             >
               {n.label}
             </a>
@@ -126,12 +136,14 @@ const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
       <a
         href="/contact"
         class="mt-6 inline-flex items-center justify-center gap-2 bg-copper text-white
-               font-medium px-8 py-4 rounded-lg text-lg mobile-link"
+               font-medium px-8 py-4 rounded-lg text-lg mobile-link
+               opacity-0 translate-y-4"
+        style="animation: navLinkIn 0.4s cubic-bezier(0.16,1,0.3,1) 0.34s forwards"
       >
         Get a Quote
       </a>
       <div class="mt-auto pb-10 border-t border-navy/10 pt-6">
-        <a href="tel:+918439312613" class="text-navy/50 text-sm font-medium">+91 84393 12613</a>
+        <a href="tel:+918439312613" class="text-navy/50 text-sm font-medium tabular-nums">+91 84393 12613</a>
       </div>
     </div>
   </div>
@@ -139,55 +151,63 @@ const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
 
 <script>
   function initHeader() {
-    const header = document.getElementById('site-header');
-    const btn = document.getElementById('menu-btn');
+    const burger = document.getElementById('burger');
     const drawer = document.getElementById('mobile-drawer');
-    const bars = document.querySelectorAll('#burger span');
-    if (!header || !btn || !drawer) return;
-
-    let open = false;
+    const backdrop = document.getElementById('mobile-backdrop');
+    const header = document.getElementById('site-header');
+    let isOpen = false;
 
     function onScroll() {
       if (header) {
-        header.style.boxShadow =
-          window.scrollY > 40 ? '0 1px 0 rgba(0,0,0,0.06)' : 'none';
+        header.classList.toggle('shadow-[0_1px_0_rgba(0,0,0,0.06)]', window.scrollY > 40);
       }
     }
 
-    function toggle() {
-      if (!drawer || !btn) return;
-      open = !open;
-      drawer.classList.toggle('translate-x-full', !open);
-      drawer.classList.toggle('translate-x-0', open);
-      drawer.setAttribute('aria-hidden', String(!open));
-      btn.setAttribute('aria-expanded', String(open));
-      document.body.style.overflow = open ? 'hidden' : '';
-      if (open) {
-        bars[0]?.setAttribute('style', 'transform:translateY(7px) rotate(45deg);width:1.25rem');
-        bars[1]?.setAttribute('style', 'opacity:0');
-        bars[2]?.setAttribute('style', 'transform:translateY(-7px) rotate(-45deg);width:1.25rem');
+    function toggleMenu() {
+      isOpen = !isOpen;
+
+      // Burger animation
+      const spans = burger?.querySelectorAll('span');
+      if (spans && spans.length === 3) {
+        if (isOpen) {
+          spans[0].classList.add('rotate-45', 'translate-y-[7px]');
+          spans[1].classList.add('opacity-0');
+          spans[2].classList.add('-rotate-45', '-translate-y-[7px]', 'w-5');
+        } else {
+          spans[0].classList.remove('rotate-45', 'translate-y-[7px]');
+          spans[1].classList.remove('opacity-0');
+          spans[2].classList.remove('-rotate-45', '-translate-y-[7px]', 'w-5');
+        }
+      }
+
+      // Drawer animation
+      if (isOpen) {
+        drawer?.classList.remove('translate-x-full');
+        backdrop?.classList.remove('opacity-0', 'pointer-events-none');
+        document.body.style.overflow = 'hidden';
       } else {
-        bars.forEach((b) => b?.removeAttribute('style'));
+        drawer?.classList.add('translate-x-full');
+        backdrop?.classList.add('opacity-0', 'pointer-events-none');
+        document.body.style.overflow = '';
       }
     }
 
-    // Clean up previous listeners to prevent stacking
-    const newBtn = btn.cloneNode(true) as HTMLElement;
-    btn.parentNode?.replaceChild(newBtn, btn);
-    newBtn.addEventListener('click', toggle);
+    // Use AbortController for clean event listener removal across page loads
+    const ac = new AbortController();
+    (window as any).__vlHeaderAc?.abort();
+    (window as any).__vlHeaderAc = ac;
+    const signal = ac.signal;
+
+    burger?.addEventListener('click', toggleMenu, { signal });
+    backdrop?.addEventListener('click', () => { if (isOpen) toggleMenu(); }, { signal });
 
     document.querySelectorAll('.mobile-link').forEach((l) => {
-      const newLink = l.cloneNode(true) as HTMLElement;
-      l.parentNode?.replaceChild(newLink, l);
-      newLink.addEventListener('click', () => { if (open) toggle(); });
+      l.addEventListener('click', () => { if (isOpen) toggleMenu(); }, { signal });
     });
 
-    // Remove old scroll listener by using a named ref
-    window.removeEventListener('scroll', (window as any).__vlScrollFn);
-    (window as any).__vlScrollFn = onScroll;
-    window.addEventListener('scroll', onScroll);
+    window.addEventListener('scroll', onScroll, { signal });
 
-    // Reset state on nav
+    // Reset state on initial load
     document.body.style.overflow = '';
   }
 
