@@ -2,31 +2,43 @@
 const testimonials = [
   {
     quote: 'Vishal Logistics Solutions has been instrumental in streamlining our supply chain. Their customs clearance team handles documentation faster than anyone we have worked with before.',
+    name: 'Arvind Mehta',
+    role: 'Supply Chain Head',
     company: 'Khatema Fibres Limited',
     initials: 'KF',
   },
   {
     quote: 'The team at Vishal Logistics has consistently delivered exceptional service across our ocean freight shipments. Rates are competitive and transit visibility is outstanding.',
+    name: 'Priya Nair',
+    role: 'Procurement Manager',
     company: 'Global Paper Link',
     initials: 'GP',
   },
   {
     quote: "I've been impressed with Vishal's attention to detail and commitment to deadline adherence. Our export shipments reach on schedule, every time.",
+    name: 'Rajeev Sharma',
+    role: 'Export Director',
     company: 'Cosmo Ferrites Limited',
     initials: 'CF',
   },
   {
     quote: 'Switching to Vishal for our road transport cut transit delays by nearly half. Their GPS tracking gives us real-time confidence across every route.',
+    name: 'Deepak Joshi',
+    role: 'Operations Lead',
     company: 'Endurance Technologies Limited',
     initials: 'ET',
   },
   {
     quote: 'From fumigation certificates to phytosanitary documentation, Vishal handles compliance requirements that most forwarders overlook entirely.',
+    name: 'Sunita Agarwal',
+    role: 'Compliance Officer',
     company: 'Flexituff Ventures International Ltd',
     initials: 'FV',
   },
   {
     quote: 'We needed a logistics partner who could manage both warehousing and last-mile delivery in a single workflow. Vishal delivered exactly that.',
+    name: 'Manoj Tiwari',
+    role: 'Warehouse Director',
     company: 'Shirdi Panel Industries (Asis India)',
     initials: 'SP',
   },
@@ -68,10 +80,13 @@ const testimonials = [
               {t.quote}
             </p>
             <div class="mt-6 flex items-center gap-3">
-              <div class="w-9 h-9 rounded-full bg-navy/[0.06] flex items-center justify-center text-[0.6rem] font-bold text-navy/50 shrink-0">
+              <div class="w-9 h-9 rounded-[30%] bg-navy/[0.06] flex items-center justify-center text-[0.6rem] font-bold text-navy/50 shrink-0">
                 {t.initials}
               </div>
-              <span class="text-xs font-medium text-navy/70 uppercase tracking-wider">{t.company}</span>
+              <div>
+                <span class="text-sm font-medium text-navy block leading-tight">{t.name}</span>
+                <span class="text-xs text-offblack/40">{t.role}, {t.company}</span>
+              </div>
             </div>
           </div>
         ))

@@ -37,7 +37,7 @@ export default {
       },
       fontFamily: {
         display: ['Outfit', 'sans-serif'],
-        body: ['"DM Sans"', 'sans-serif'],
+        body: ['"Plus Jakarta Sans"', 'sans-serif'],
       },
     },
   },

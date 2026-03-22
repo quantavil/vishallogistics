@@ -1,13 +1,13 @@
 ---
 const stats = [
-  { value: '20', suffix: '+', label: 'Countries Served' },
-  { value: '5000', suffix: '+', label: 'Shipments Delivered' },
+  { value: '23', suffix: '+', label: 'Countries Served' },
+  { value: '5200', suffix: '+', label: 'Shipments Delivered' },
   { value: '98.7', suffix: '%', label: 'On-Time Rate' },
-  { value: '200', suffix: '+', label: 'Active Clients' },
+  { value: '214', suffix: '+', label: 'Active Clients' },
 ];
 ---
 
-<section class="py-20 md:py-28 bg-white">
+<section class="py-20 md:py-28 bg-cream/50">
   <div class="max-w-[1400px] mx-auto px-5 lg:px-8">
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-4">
       {
@@ -23,7 +23,7 @@ const stats = [
             <div class="lg:pl-8">
               <div class="flex items-baseline justify-center lg:justify-start gap-0.5">
                 <span
-                  class="font-display font-extrabold text-navy text-5xl md:text-6xl tracking-tight"
+                  class="font-display font-extrabold text-navy text-5xl md:text-6xl tracking-tight tabular-nums"
                   data-counter={s.value}
                 >
                   0

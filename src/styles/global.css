@@ -13,6 +13,14 @@
     background-color: #D4622B;
     color: #fff;
   }
+
+  /* Focus ring — keyboard accessibility */
+  a:focus-visible,
+  button:focus-visible {
+    outline: 2px solid #D4622B;
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
 }
 
 @layer components {
