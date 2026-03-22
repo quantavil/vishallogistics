@@ -29,19 +29,19 @@
 - [x] Update `Footer.astro` — display `vishallogistics22@gmail.com`
 
 ### Upload New Website to Hostinger
-- [ ] Build the Astro site locally: `bun run build`
-- [ ] Go to Hostinger File Manager → `public_html`
-- [ ] **Backup**: Download or rename current `public_html` contents (keep as backup)
-- [ ] **Delete** current files inside `public_html` (old site)
-- [ ] Upload contents of `dist/client/` into `public_html`
+- [x] Build the Astro site locally: `bun run build`
+- [x] Go to Hostinger File Manager → `public_html`
+- [x] **Backup**: Download or rename current `public_html` contents (keep as backup)
+- [x] **Delete** current files inside `public_html` (old site)
+- [x] Upload contents of `dist/client/` into `public_html`
   - This includes all static HTML, CSS, JS, images, etc.
-- [ ] Verify `vishallogistics.in` loads the new website
+- [x] Verify `vishallogistics.in` loads the new website
 
 > **⚠️ Important:** Since the Astro site is SSR (Cloudflare adapter), only the **static/prerendered pages** will work on Hostinger. The contact form uses Web3Forms (client-side AJAX), so it works everywhere. If any pages use server-side rendering, they won't work on Hostinger — only on Cloudflare Pages.
 
 ### Keep Both Deployments Running
-- [ ] Cloudflare Pages: `vishallogistics.iyzi.workers.dev` (full SSR support)
-- [ ] Hostinger: `vishallogistics.in` (static pages only)
+- [x] Cloudflare Pages: `vishallogistics.iyzi.workers.dev` (full SSR support)
+- [x] Hostinger: `vishallogistics.in` (static pages only)
 
 ---
 
