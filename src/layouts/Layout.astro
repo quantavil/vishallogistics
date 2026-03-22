@@ -1,9 +1,9 @@
 ---
-import '../styles/global.css';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import WhatsAppFloat from '../components/WhatsAppFloat.astro';
-import { ClientRouter } from 'astro:transitions';
+import "../styles/global.css";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import WhatsAppFloat from "../components/WhatsAppFloat.astro";
+import { ClientRouter } from "astro:transitions";
 
 export interface Props {
   title: string;
@@ -12,7 +12,7 @@ export interface Props {
 
 const {
   title,
-  description = 'Vishal Logistics Solutions — Customs clearance, freight forwarding, warehousing, and express delivery for manufacturers and exporters across India.',
+  description = "Vishal Logistics Solutions — Customs clearance, freight forwarding, warehousing, and express delivery for manufacturers and exporters across India.",
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
@@ -33,13 +33,19 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:site_name" content="Vishal Logistics Solutions" />
-    <meta property="og:image" content="https://vishallogistics.in/og-image.jpg" />
+    <meta
+      property="og:image"
+      content="https://vishallogistics.in/og-image.jpg"
+    />
 
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content="https://vishallogistics.in/og-image.jpg" />
+    <meta
+      name="twitter:image"
+      content="https://vishallogistics.in/og-image.jpg"
+    />
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -69,7 +75,8 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       href="#main-content"
       class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50
              bg-copper text-white px-4 py-2 rounded-lg text-sm font-medium"
-    >Skip to content</a>
+      >Skip to content</a
+    >
     <Header />
     <main id="main-content">
       <slot />
@@ -78,19 +85,21 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <WhatsAppFloat />
 
     <script>
-      document.addEventListener('astro:page-load', () => {
+      document.addEventListener("astro:page-load", () => {
         const observer = new IntersectionObserver(
           (entries) => {
             entries.forEach((e) => {
               if (e.isIntersecting) {
-                e.target.classList.add('revealed');
+                e.target.classList.add("revealed");
                 observer.unobserve(e.target);
               }
             });
           },
-          { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
+          { threshold: 0.08, rootMargin: "0px 0px -40px 0px" },
         );
-        document.querySelectorAll('[data-reveal]').forEach((el) => observer.observe(el));
+        document
+          .querySelectorAll("[data-reveal]")
+          .forEach((el) => observer.observe(el));
       });
     </script>
   </body>
