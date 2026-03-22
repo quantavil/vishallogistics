@@ -35,7 +35,6 @@ const services = [
       'Real-Time Container Tracking',
       'Reefer Container Handling',
     ],
-    tracking: 'https://www.ldb.co.in/ldb/containersearch',
     image: '/images/services/ocean.png',
     icon: `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><path d="M8 40c4-4 8-4 12 0s8 4 12 0 8-4 12 0 8 4 12 0"/><path d="M16 40V22l16-8 16 8v18"/><rect x="26" y="28" width="12" height="12" rx="1.5"/></svg>`,
   },
@@ -157,22 +156,9 @@ const services = [
                 ))}
               </ul>
 
-              {s.tracking && (
-                <a
-                  href={s.tracking}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="mt-6 inline-flex items-center gap-2 text-copper text-sm font-medium hover:underline underline-offset-4"
-                >
-                  Track Your Container
-                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M7 17L17 7M17 7H7M17 7v10" />
-                  </svg>
-                </a>
-              )}
 
               <a
-                href="/contact"
+                href={`/contact?service=${s.id}`}
                 class="mt-8 inline-flex items-center gap-2 bg-navy text-white text-sm font-medium
                        px-6 py-3 rounded-lg hover:bg-navy-800 active:scale-[0.97] transition-all duration-200"
               >

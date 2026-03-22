@@ -1,66 +1,123 @@
 ---
 const services = [
-  { label: 'Customs Clearance', href: '/services#customs' },
-  { label: 'Ocean Freight', href: '/services#ocean' },
-  { label: 'Air Freight', href: '/services#air' },
-  { label: 'Road Transport', href: '/services#road' },
-  { label: 'Express Delivery', href: '/services#express' },
-  { label: 'Warehousing', href: '/services#warehouse' },
+  { label: "Customs Clearance", href: "/services#customs" },
+  { label: "Ocean Freight", href: "/services#ocean" },
+  { label: "Air Freight", href: "/services#air" },
+  { label: "Road Transport", href: "/services#road" },
+  { label: "Express Delivery", href: "/services#express" },
+  { label: "Warehousing", href: "/services#warehouse" },
 ];
 const year = new Date().getFullYear();
 ---
 
 <footer class="bg-navy-950 text-white/50 pt-16 pb-8">
   <div class="max-w-[1400px] mx-auto px-5 lg:px-8">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8 pb-12 border-b border-white/6">
+    <div
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8 pb-12 border-b border-white/6"
+    >
       <!-- Brand -->
       <div class="lg:col-span-1">
         <div class="flex items-center gap-3 mb-5">
-          <div class="w-9 h-9 rounded-lg bg-copper flex items-center justify-center">
-            <span class="text-white font-display font-extrabold text-sm leading-none">V</span>
+          <div
+            class="w-9 h-9 rounded-lg bg-copper flex items-center justify-center"
+          >
+            <span
+              class="text-white font-display font-extrabold text-sm leading-none"
+              >V</span
+            >
           </div>
           <div class="leading-[1.15]">
-            <span class="font-display font-bold text-white text-sm tracking-wide block">VISHAL</span>
-            <span class="text-[0.6rem] text-white/30 tracking-[0.22em] uppercase font-medium">Logistics</span>
+            <span
+              class="font-display font-bold text-white text-sm tracking-wide block"
+              >VISHAL</span
+            >
+            <span
+              class="text-[0.6rem] text-white/30 tracking-[0.22em] uppercase font-medium"
+              >Logistics</span
+            >
           </div>
         </div>
         <p class="text-sm leading-relaxed max-w-[28ch]">
-          Customs clearance and freight forwarding for Indian manufacturers exporting globally. Based in Uttar Pradesh, operating since 2022.
+          Customs clearance and freight forwarding for Indian manufacturers
+          exporting globally. Based in Uttar Pradesh, operating since 2022.
         </p>
       </div>
 
       <!-- Services -->
       <div>
-        <h4 class="text-white font-display font-bold text-sm tracking-wide mb-5">Services</h4>
+        <h4
+          class="text-white font-display font-bold text-sm tracking-wide mb-5"
+        >
+          Services
+        </h4>
         <ul class="space-y-3">
-          {services.map((s) => (
-            <li>
-              <a href={s.href} class="text-sm hover:text-white transition-colors">{s.label}</a>
-            </li>
-          ))}
+          {
+            services.map((s) => (
+              <li>
+                <a
+                  href={s.href}
+                  class="text-sm hover:text-white transition-colors"
+                >
+                  {s.label}
+                </a>
+              </li>
+            ))
+          }
         </ul>
       </div>
 
       <!-- Company -->
       <div>
-        <h4 class="text-white font-display font-bold text-sm tracking-wide mb-5">Company</h4>
+        <h4
+          class="text-white font-display font-bold text-sm tracking-wide mb-5"
+        >
+          Company
+        </h4>
         <ul class="space-y-3">
-          <li><a href="/" class="text-sm hover:text-white transition-colors">Home</a></li>
-          <li><a href="/services" class="text-sm hover:text-white transition-colors">Services</a></li>
-          <li><a href="/contact" class="text-sm hover:text-white transition-colors">Contact</a></li>
-          <li><a href="/privacy" class="text-sm hover:text-white transition-colors">Privacy policy</a></li>
+          <li>
+            <a href="/" class="text-sm hover:text-white transition-colors"
+              >Home</a>
+          </li>
+          <li>
+            <a
+              href="/services"
+              class="text-sm hover:text-white transition-colors">Services</a>
+          </li>
+          <li>
+            <a
+              href="/contact"
+              class="text-sm hover:text-white transition-colors">Contact</a>
+          </li>
+          <li>
+            <a
+              href="/privacy"
+              class="text-sm hover:text-white transition-colors"
+              >Privacy policy</a>
+          </li>
         </ul>
       </div>
 
       <!-- Contact -->
       <div>
-        <h4 class="text-white font-display font-bold text-sm tracking-wide mb-5">Get in touch</h4>
+        <h4
+          class="text-white font-display font-bold text-sm tracking-wide mb-5"
+        >
+          Get in touch
+        </h4>
         <ul class="space-y-3 text-sm">
           <li>
-            <a href="tel:+918439312613" class="hover:text-white transition-colors tabular-nums">+91 84393 12613</a>
+            <a
+              href="tel:+918439312613"
+              class="hover:text-white transition-colors tabular-nums"
+              >+91 84393 12613</a
+            >
           </li>
           <li>
-            <a href="mailto:vishallogistics22@gmail.com" class="hover:text-white transition-colors">vishallogistics22@gmail.com</a>
+            <a
+              href="mailto:vishallogistics22@gmail.com"
+              class="hover:text-white transition-colors"
+              >vishallogistics22@gmail.com</a
+            >
           </li>
           <li class="leading-relaxed">
             15/18/592 Alakhnanda Colony,<br />Khushalpur, Uttar Pradesh, India
@@ -69,9 +126,14 @@ const year = new Date().getFullYear();
       </div>
     </div>
 
-    <div class="pt-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-xs text-white/25">
+    <div
+      class="pt-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-xs text-white/25"
+    >
       <p>&copy; {year} Vishal Logistics Solutions. All rights reserved.</p>
-      <a href="https://vishallogistics.in" class="hover:text-white/40 transition-colors">vishallogistics.in</a>
+      <a
+        href="https://vishallogistics.in"
+        class="hover:text-white/40 transition-colors">vishallogistics.in</a
+      >
     </div>
   </div>
 </footer>

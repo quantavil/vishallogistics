@@ -224,6 +224,16 @@ import WhatsAppIcon from '../components/icons/WhatsAppIcon.astro';
     const form = document.getElementById('contact-form') as HTMLFormElement | null;
     if (!form) return;
 
+    // Auto-select service from URL parameter
+    const params = new URLSearchParams(window.location.search);
+    const serviceParam = params.get('service');
+    if (serviceParam) {
+      const select = document.getElementById('service') as HTMLSelectElement | null;
+      if (select && Array.from(select.options).some(opt => opt.value === serviceParam)) {
+        select.value = serviceParam;
+      }
+    }
+
     const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
     const btnText = document.getElementById('btn-text')!;
     const btnIcon = document.getElementById('btn-icon')!;

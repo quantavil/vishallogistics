@@ -1,12 +1,13 @@
 ---
 // src/components/Header.astro
 const nav = [
-  { label: 'Home', href: '/' },
-  { label: 'Services', href: '/services' },
-  { label: 'Contact', href: '/contact' },
+  { label: "Home", href: "/" },
+  { label: "Services", href: "/services" },
+  { label: "Track", href: "https://www.ldb.co.in/ldb/containersearch", external: true },
+  { label: "Contact", href: "/contact" },
 ];
 
-const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
+const pathname = Astro.url.pathname.replace(/\/$/, "") || "/";
 ---
 
 <header
@@ -20,13 +21,18 @@ const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
         <div
           class="w-10 h-10 rounded-lg bg-copper flex items-center justify-center shadow-md shadow-copper/20"
         >
-          <span class="text-white font-display font-extrabold text-lg leading-none">V</span>
+          <span
+            class="text-white font-display font-extrabold text-lg leading-none"
+            >V</span
+          >
         </div>
         <div class="leading-[1.15]">
-          <span class="font-display font-bold text-navy text-[0.85rem] tracking-wide block"
+          <span
+            class="font-display font-bold text-navy text-[0.85rem] tracking-wide block"
             >VISHAL</span
           >
-          <span class="text-[0.65rem] text-navy/50 tracking-[0.22em] uppercase font-medium"
+          <span
+            class="text-[0.65rem] text-navy/50 tracking-[0.22em] uppercase font-medium"
             >Logistics</span
           >
         </div>
@@ -37,21 +43,21 @@ const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
         {
           nav.map((n) => {
             const isActive =
-              n.href === '/'
-                ? pathname === '/'
-                : pathname.startsWith(n.href);
+              n.href === "/" ? pathname === "/" : pathname.startsWith(n.href);
             return (
               <a
                 href={n.href}
+                target={n.external ? "_blank" : undefined}
+                rel={n.external ? "noopener noreferrer" : undefined}
                 class:list={[
-                  'text-sm font-medium transition-colors relative',
-                  'after:absolute after:bottom-[-4px] after:left-0 after:h-[2px]',
-                  'after:bg-copper after:transition-all after:duration-300',
+                  "text-sm font-medium transition-colors relative",
+                  "after:absolute after:bottom-[-4px] after:left-0 after:h-[2px]",
+                  "after:bg-copper after:transition-all after:duration-300",
                   isActive
-                    ? 'text-navy after:w-full'
-                    : 'text-navy/60 hover:text-navy after:w-0 hover:after:w-full',
+                    ? "text-navy after:w-full"
+                    : "text-navy/60 hover:text-navy after:w-0 hover:after:w-full",
                 ]}
-                aria-current={isActive ? 'page' : undefined}
+                aria-current={isActive ? "page" : undefined}
               >
                 {n.label}
               </a>
@@ -88,9 +94,14 @@ const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
         aria-expanded="false"
       >
         <div class="flex flex-col gap-[5px]" id="burger">
-          <span class="block w-5 h-[2px] bg-navy transition-all duration-300 origin-center"></span>
-          <span class="block w-5 h-[2px] bg-navy transition-all duration-300"></span>
-          <span class="block w-3.5 h-[2px] bg-navy transition-all duration-300 origin-center"></span>
+          <span
+            class="block w-5 h-[2px] bg-navy transition-all duration-300 origin-center"
+          ></span>
+          <span class="block w-5 h-[2px] bg-navy transition-all duration-300"
+          ></span>
+          <span
+            class="block w-3.5 h-[2px] bg-navy transition-all duration-300 origin-center"
+          ></span>
         </div>
       </button>
     </nav>
@@ -99,10 +110,11 @@ const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
   <!-- Mobile drawer backdrop -->
   <div
     id="mobile-backdrop"
-    class="md:hidden fixed inset-0 top-20 bg-navy/20 backdrop-blur-sm z-20 
+    class="md:hidden fixed inset-0 top-20 bg-navy/20 backdrop-blur-sm z-20
            opacity-0 pointer-events-none transition-opacity duration-500"
     aria-hidden="true"
-  ></div>
+  >
+  </div>
 
   <!-- Mobile drawer -->
   <div
@@ -115,16 +127,16 @@ const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
       {
         nav.map((n, i) => {
           const isActive =
-            n.href === '/'
-              ? pathname === '/'
-              : pathname.startsWith(n.href);
+            n.href === "/" ? pathname === "/" : pathname.startsWith(n.href);
           return (
             <a
               href={n.href}
+              target={n.external ? "_blank" : undefined}
+              rel={n.external ? "noopener noreferrer" : undefined}
               class:list={[
-                'text-2xl font-display font-bold transition-all mobile-link',
-                'opacity-0 translate-y-4',
-                isActive ? 'text-copper' : 'text-navy hover:text-copper',
+                "text-2xl font-display font-bold transition-all mobile-link",
+                "opacity-0 translate-y-4",
+                isActive ? "text-copper" : "text-navy hover:text-copper",
               ]}
               style={`animation: navLinkIn 0.4s cubic-bezier(0.16,1,0.3,1) ${0.1 + i * 0.07}s forwards`}
             >
@@ -143,7 +155,11 @@ const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
         Get a Quote
       </a>
       <div class="mt-auto pb-10 border-t border-navy/10 pt-6">
-        <a href="tel:+918439312613" class="text-navy/50 text-sm font-medium tabular-nums">+91 84393 12613</a>
+        <a
+          href="tel:+918439312613"
+          class="text-navy/50 text-sm font-medium tabular-nums"
+          >+91 84393 12613</a
+        >
       </div>
     </div>
   </div>
@@ -151,15 +167,18 @@ const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
 
 <script>
   function initHeader() {
-    const burger = document.getElementById('burger');
-    const drawer = document.getElementById('mobile-drawer');
-    const backdrop = document.getElementById('mobile-backdrop');
-    const header = document.getElementById('site-header');
+    const burger = document.getElementById("burger");
+    const drawer = document.getElementById("mobile-drawer");
+    const backdrop = document.getElementById("mobile-backdrop");
+    const header = document.getElementById("site-header");
     let isOpen = false;
 
     function onScroll() {
       if (header) {
-        header.classList.toggle('shadow-[0_1px_0_rgba(0,0,0,0.06)]', window.scrollY > 40);
+        header.classList.toggle(
+          "shadow-[0_1px_0_rgba(0,0,0,0.06)]",
+          window.scrollY > 40,
+        );
       }
     }
 
@@ -167,28 +186,28 @@ const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
       isOpen = !isOpen;
 
       // Burger animation
-      const spans = burger?.querySelectorAll('span');
+      const spans = burger?.querySelectorAll("span");
       if (spans && spans.length === 3) {
         if (isOpen) {
-          spans[0].classList.add('rotate-45', 'translate-y-[7px]');
-          spans[1].classList.add('opacity-0');
-          spans[2].classList.add('-rotate-45', '-translate-y-[7px]', 'w-5');
+          spans[0].classList.add("rotate-45", "translate-y-[7px]");
+          spans[1].classList.add("opacity-0");
+          spans[2].classList.add("-rotate-45", "-translate-y-[7px]", "w-5");
         } else {
-          spans[0].classList.remove('rotate-45', 'translate-y-[7px]');
-          spans[1].classList.remove('opacity-0');
-          spans[2].classList.remove('-rotate-45', '-translate-y-[7px]', 'w-5');
+          spans[0].classList.remove("rotate-45", "translate-y-[7px]");
+          spans[1].classList.remove("opacity-0");
+          spans[2].classList.remove("-rotate-45", "-translate-y-[7px]", "w-5");
         }
       }
 
       // Drawer animation
       if (isOpen) {
-        drawer?.classList.remove('translate-x-full');
-        backdrop?.classList.remove('opacity-0', 'pointer-events-none');
-        document.body.style.overflow = 'hidden';
+        drawer?.classList.remove("translate-x-full");
+        backdrop?.classList.remove("opacity-0", "pointer-events-none");
+        document.body.style.overflow = "hidden";
       } else {
-        drawer?.classList.add('translate-x-full');
-        backdrop?.classList.add('opacity-0', 'pointer-events-none');
-        document.body.style.overflow = '';
+        drawer?.classList.add("translate-x-full");
+        backdrop?.classList.add("opacity-0", "pointer-events-none");
+        document.body.style.overflow = "";
       }
     }
 
@@ -198,18 +217,30 @@ const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
     (window as any).__vlHeaderAc = ac;
     const signal = ac.signal;
 
-    burger?.addEventListener('click', toggleMenu, { signal });
-    backdrop?.addEventListener('click', () => { if (isOpen) toggleMenu(); }, { signal });
+    burger?.addEventListener("click", toggleMenu, { signal });
+    backdrop?.addEventListener(
+      "click",
+      () => {
+        if (isOpen) toggleMenu();
+      },
+      { signal },
+    );
 
-    document.querySelectorAll('.mobile-link').forEach((l) => {
-      l.addEventListener('click', () => { if (isOpen) toggleMenu(); }, { signal });
+    document.querySelectorAll(".mobile-link").forEach((l) => {
+      l.addEventListener(
+        "click",
+        () => {
+          if (isOpen) toggleMenu();
+        },
+        { signal },
+      );
     });
 
-    window.addEventListener('scroll', onScroll, { signal });
+    window.addEventListener("scroll", onScroll, { signal });
 
     // Reset state on initial load
-    document.body.style.overflow = '';
+    document.body.style.overflow = "";
   }
 
-  document.addEventListener('astro:page-load', initHeader);
+  document.addEventListener("astro:page-load", initHeader);
 </script>
