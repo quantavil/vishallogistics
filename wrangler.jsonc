@@ -10,14 +10,6 @@
     "binding": "ASSETS",
     "directory": "./dist"
   },
-  "send_email": [
-    {
-      "name": "SEB"
-    }
-  ],
-  "vars": {
-    "DESTINATION_EMAIL": "vishallogistics22@gmail.com"
-  },
   "observability": {
     "enabled": true
   }
