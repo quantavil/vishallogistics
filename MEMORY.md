@@ -11,6 +11,7 @@ src/
 │   ├── animations/      # Animation utilities/components
 │   ├── icons/           # SVG icons
 │   ├── CTA.astro        # Call to Action block
+│   ├── CurrencyInput.astro # Input and select component for currency conversion
 │   ├── Footer.astro     # Global footer
 │   ├── Header.astro     # Global header & navigation
 │   ├── Hero.astro       # Landing hero section
@@ -28,10 +29,10 @@ src/
 │   ├── api/             # API endpoints
 │   ├── 404.astro        # Error page
 │   ├── contact.astro    # Contact form & info
-│   ├── currency-converter.astro # Live currency exchange rates
 │   ├── index.astro      # Main landing page
 │   ├── privacy.astro    # Privacy policy
-│   └── services.astro   # Detailed services page
+│   ├── services.astro   # Detailed services page
+│   └── tools.astro      # Logistics tools dashboard (Currency, Volumetric)
 ├── styles/              
 │   └── global.css       # Utilities & Tailwind directives
 └── env.d.ts             # TypeScript definitions
@@ -51,14 +52,17 @@ public/                  # Static un-processed assets
 - `bun install` for package management.
 - `bun run dev` for development server.
 - Uses `@astrojs/cloudflare` adapter for Cloudflare Pages deployment.
-- Contact form submissions are handled via Web3Forms (no backend API required).
+- Contact form submissions were migrated from Web3Forms to **Resend** (via Cloudflare Worker / API route).
 
 ## Critical Information
 - Since the Astro site uses a Cloudflare adapter for SSR, only static/prerendered pages will work on Hostinger. The contact form works via Web3Forms (client-side AJAX), so it operates smoothly on both.
 - Email routing is planned to migrate to Cloudflare when Hostinger expires.
 
 ## Insights
-- Ensure new features degrading gracefully to static functionality if intended for Hostinger deployment.
+- Ensure new features degrade gracefully to static functionality if intended for Hostinger deployment.
+- **Logistics Tools Dashboard** (`tools.astro`):
+  - **Currency Converter**: Live rates fetched client-side from `fawazahmed0/currency-api`. Default conversion is USD → INR. Amount input accepts numeric values; the converted result displays with shimmer animation while loading. Error handling shows a user-friendly message if the API fails.
+  - **Volumetric Weight Calculator**: `VolumetricCalculator.astro`. Calculates Air Freight (CM/KG divided by 6000 or IN/LBS divided by 139/166) and Sea Freight (CBM). It responds instantly to input changes. Both tools are presented in a unified side-by-side grid.
 
 ## Blunders
 - None recorded yet.

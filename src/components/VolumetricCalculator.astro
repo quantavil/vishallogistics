@@ -1,0 +1,121 @@
+---
+---
+
+<div class="w-full bg-white rounded-2xl shadow-xl shadow-navy/5 border border-navy/5 p-5 md:p-6 relative overflow-hidden h-full flex flex-col group/card" data-reveal>
+  <!-- Background Decor -->
+  <div class="absolute -top-24 -right-24 w-48 h-48 bg-copper/5 rounded-full blur-3xl pointer-events-none group-hover/card:bg-copper/10 transition-colors duration-500"></div>
+  <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-navy/5 rounded-full blur-3xl pointer-events-none group-hover/card:bg-navy/10 transition-colors duration-500"></div>
+  
+  <div class="relative z-10 flex-grow">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-xl font-display font-bold text-navy">Volumetric Weight</h2>
+      <select id="vol-unit" class="appearance-none bg-cream border border-navy/10 rounded-lg px-3 py-1.5 text-navy font-bold text-xs focus:outline-none focus:ring-2 focus:ring-copper/30 cursor-pointer transition-all hover:bg-navy/5">
+        <option value="cm">CM / KG</option>
+        <option value="in">IN / LBS</option>
+      </select>
+    </div>
+
+    <!-- Dimensions -->
+    <div class="grid grid-cols-3 gap-3 md:gap-4 mb-5">
+      {[
+        { id: 'l', label: 'Length' },
+        { id: 'w', label: 'Width' },
+        { id: 'h', label: 'Height' }
+      ].map(dim => (
+        <div class="flex flex-col gap-2">
+          <label for={`vol-${dim.id}`} class="text-xs font-bold text-navy uppercase tracking-wider">{dim.label}</label>
+          <input type="number" id={`vol-${dim.id}`} value="50" min="0" class="w-full rounded-xl px-3 py-2.5 text-lg font-bold bg-cream border border-navy/10 text-navy focus:outline-none focus:ring-2 focus:ring-copper/30 focus:border-copper transition-all tabular-nums text-center" />
+        </div>
+      ))}
+    </div>
+    
+    <!-- Multiplier Select -->
+    <div class="flex flex-col gap-2 mb-6">
+      <label for="vol-type" class="text-xs font-bold text-navy uppercase tracking-wider">Freight Type</label>
+      <div class="relative group">
+        <select id="vol-type" class="w-full appearance-none bg-cream border border-navy/10 rounded-xl px-4 py-3 text-navy font-bold text-sm focus:outline-none focus:ring-2 focus:ring-copper/30 focus:border-copper transition-all pr-10 cursor-pointer">
+          <option value="6000">Intl. Air Freight & Export (/6000)</option>
+          <option value="5000">Express & Domestic Air (/5000)</option>
+          <option value="4000">Indian Domestic Surface (/4000)</option>
+          <option value="cbm">Sea Freight LCL (CBM)</option>
+        </select>
+        <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-navy/40 group-hover:text-copper transition-colors">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Footer -->
+  <div class="mt-auto pt-4 border-t border-navy/10">
+    <p class="text-xs text-navy/50 font-medium mb-1 uppercase tracking-wide">Chargeable Weight / Volume</p>
+    <div class="flex items-baseline gap-2">
+      <p id="vol-result" class="text-3xl font-display font-bold text-copper tabular-nums transition-all">20.83</p>
+      <p id="vol-result-unit" class="text-navy/70 font-bold font-display">KG</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("astro:page-load", () => {
+    const elL = document.getElementById('vol-l') as HTMLInputElement;
+    const elW = document.getElementById('vol-w') as HTMLInputElement;
+    const elH = document.getElementById('vol-h') as HTMLInputElement;
+    const elUnit = document.getElementById('vol-unit') as unknown as HTMLSelectElement;
+    const elType = document.getElementById('vol-type') as unknown as HTMLSelectElement;
+    const elResult = document.getElementById('vol-result') as HTMLElement;
+    const elResultUnit = document.getElementById('vol-result-unit') as HTMLElement;
+    
+    if (!elL || !elW || !elH || !elUnit || !elType || !elResult || !elResultUnit) return;
+
+    function calculate() {
+      const l = parseFloat(elL.value) || 0;
+      const w = parseFloat(elW.value) || 0;
+      const h = parseFloat(elH.value) || 0;
+      const type = elType.value;
+      const unit = elUnit.value;
+      
+      let volume = l * w * h;
+      
+      if (type === 'cbm') {
+        // Sea Freight CBM calculation
+        let cbm = 0;
+        if (unit === 'cm') {
+          cbm = volume / 1000000; // cm3 to m3
+        } else {
+          cbm = volume / 61023.7; // cubic inches to m3
+        }
+        elResult.textContent = cbm.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 3 });
+        elResultUnit.textContent = 'CBM';
+      } else {
+        // Volumetric Weight Calculation
+        const divisor = parseFloat(type);
+        let weight = 0;
+        
+        if (unit === 'cm') {
+          weight = volume / divisor; // kg
+          elResultUnit.textContent = 'KG';
+        } else {
+          // If in inches, mapping standard divisors to their inch equivalents (roughly)
+          // /6000 cm3/kg -> /166 in3/lbs
+          // /5000 cm3/kg -> /139 in3/lbs
+          // /4000 cm3/kg -> /110 in3/lbs
+          let dimDivisor = 166;
+          if (divisor === 5000) dimDivisor = 139;
+          if (divisor === 4000) dimDivisor = 110;
+          
+          weight = volume / dimDivisor;
+          elResultUnit.textContent = 'LBS';
+        }
+        
+        elResult.textContent = weight.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+    }
+    
+    [elL, elW, elH].forEach(input => input.addEventListener('input', calculate));
+    [elUnit, elType].forEach(select => select.addEventListener('change', calculate));
+    
+    // Initial calculation
+    calculate();
+  });
+</script>

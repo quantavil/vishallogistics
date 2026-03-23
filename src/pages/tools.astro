@@ -3,26 +3,35 @@ export const prerender = true;
 
 import Layout from '../layouts/Layout.astro';
 import CurrencyInput from '../components/CurrencyInput.astro';
+import VolumetricCalculator from '../components/VolumetricCalculator.astro';
 ---
 
-<Layout title="Currency Converter — Vishal Logistics Solutions" description="Get real-time exchange rates for global currencies with our free currency converter tool.">
+<Layout title="Logistics Tools — Vishal Logistics Solutions" description="Essential calculators and utilities for your freight and shipping planning.">
   <section class="pt-24 pb-10 px-5 lg:px-8 max-w-[1400px] mx-auto flex flex-col items-center justify-center">
-    <div class="text-center mb-5" data-reveal>
+    <div class="text-center mb-10" data-reveal>
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-copper/10 text-copper text-xs font-bold tracking-wide uppercase mb-3">
         <span class="w-1.5 h-1.5 rounded-full bg-copper animate-pulse"></span>
-        Live Rates
+        Free Utilities
       </div>
-      <h1 class="text-2xl md:text-3xl lg:text-4xl font-display font-bold text-navy mb-2 tracking-tight">Currency Converter</h1>
-      <p class="text-navy/70 max-w-2xl mx-auto text-sm">Real-time exchange rates for over 200 global currencies.</p>
+      <h1 class="text-2xl md:text-3xl lg:text-4xl font-display font-bold text-navy mb-2 tracking-tight">Logistics Tools</h1>
+      <p class="text-navy/70 max-w-2xl mx-auto text-sm">Real-time exchange rates and volumetric weight calculators to streamline your shipping.</p>
     </div>
     
-    <div class="w-full max-w-5xl bg-white rounded-2xl shadow-xl shadow-navy/5 border border-navy/5 p-5 md:p-6 relative overflow-hidden" data-reveal>
-      <!-- Background Decor -->
-      <div class="absolute -top-24 -right-24 w-48 h-48 bg-copper/5 rounded-full blur-3xl pointer-events-none"></div>
-      <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-navy/5 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-6 relative" data-reveal>
       
-      <!-- Converter Row -->
-      <div class="grid grid-cols-1 md:grid-cols-[1fr,auto,1fr] gap-4 md:gap-6 items-end relative z-10">
+      <!-- Currency Converter Card -->
+      <div class="w-full bg-white rounded-2xl shadow-xl shadow-navy/5 border border-navy/5 p-5 md:p-6 relative overflow-hidden h-full flex flex-col group/card">
+        <!-- Background Decor -->
+        <div class="absolute -top-24 -right-24 w-48 h-48 bg-copper/5 rounded-full blur-3xl pointer-events-none group-hover/card:bg-copper/10 transition-colors duration-500"></div>
+        <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-navy/5 rounded-full blur-3xl pointer-events-none group-hover/card:bg-navy/10 transition-colors duration-500"></div>
+        
+        <div class="relative z-10 flex-grow">
+          <div class="mb-6">
+            <h2 class="text-xl font-display font-bold text-navy">Currency Converter</h2>
+          </div>
+          
+          <!-- Converter Row -->
+          <div class="grid grid-cols-1 gap-4 md:gap-5 items-end">
         <!-- From -->
         <CurrencyInput 
           idPrefix="from" 
@@ -44,23 +53,29 @@ import CurrencyInput from '../components/CurrencyInput.astro';
           defaultCurrencyLabel="INR - Indian Rupee" 
           isReadonly={true} 
         />
-      </div>
-      
-      <!-- Rate Footer -->
-      <div class="mt-4 pt-3 border-t border-navy/10 flex flex-col sm:flex-row items-center justify-between gap-2">
-        <div>
-          <p class="text-xs text-navy/50 font-medium mb-0.5 uppercase tracking-wide">Indicative Exchange Rate</p>
-          <p id="rate-display" class="text-lg font-display font-bold text-copper">
-            1 USD = <span class="inline-block w-20 h-5 bg-copper/10 rounded animate-pulse align-middle"></span> INR
-          </p>
+          </div>
         </div>
-        <div class="text-right">
-          <p id="last-updated" class="text-xs font-medium text-navy/40 flex items-center justify-center sm:justify-end gap-1.5">
-            <svg class="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
-            Loading API...
-          </p>
+        
+        <!-- Rate Footer -->
+        <div class="mt-auto pt-4 border-t border-navy/10 flex flex-col sm:flex-row items-center justify-between gap-2">
+          <div>
+            <p class="text-xs text-navy/50 font-medium mb-0.5 uppercase tracking-wide">Indicative Exchange Rate</p>
+            <p id="rate-display" class="text-xl font-display font-bold text-copper tabular-nums transition-all">
+              1 USD = <span class="inline-block w-20 h-5 bg-copper/10 rounded animate-pulse align-middle"></span> INR
+            </p>
+          </div>
+          <div class="text-right">
+            <p id="last-updated" class="text-xs font-medium text-navy/40 flex items-center justify-center sm:justify-end gap-1.5">
+              <svg class="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+              Loading API...
+            </p>
+          </div>
         </div>
       </div>
+
+      <!-- Volumetric Calculator Card -->
+      <VolumetricCalculator />
+
     </div>
   </section>
 </Layout>
