@@ -1,0 +1,37 @@
+---
+export interface Props {
+  idPrefix: "from" | "to";
+  label: string;
+  defaultCurrencyCode: string;
+  defaultCurrencyLabel: string;
+  isReadonly?: boolean;
+}
+
+const { idPrefix, label, defaultCurrencyCode, defaultCurrencyLabel, isReadonly = false } = Astro.props;
+---
+
+<div class="flex flex-col gap-2">
+  <label for={`currency-${idPrefix}`} class="text-xs font-bold text-navy uppercase tracking-wider">{label}</label>
+  <div class="relative group">
+    <select id={`currency-${idPrefix}`} class="w-full appearance-none bg-cream border border-navy/10 rounded-xl px-4 py-2.5 text-navy font-bold text-sm focus:outline-none focus:ring-2 focus:ring-copper/30 focus:border-copper transition-all pr-10 cursor-pointer">
+      <option value={defaultCurrencyCode}>{defaultCurrencyLabel}</option>
+    </select>
+    <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-navy/40 group-hover:text-copper transition-colors">
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+    </div>
+  </div>
+  {/* Default amount shown before API resolves */}
+  <input 
+    type={isReadonly ? "text" : "number"} 
+    id={`amount-${idPrefix}`} 
+    value={isReadonly ? "" : "1"} 
+    min={isReadonly ? undefined : "0"} 
+    step={isReadonly ? undefined : "any"} 
+    readonly={isReadonly} 
+    class:list={[
+      "w-full rounded-xl px-4 py-3 text-2xl font-display font-bold focus:outline-none focus:ring-2 focus:ring-copper/30 focus:border-copper transition-all tabular-nums",
+      isReadonly ? "bg-cream/50 border border-navy/5 text-navy/70 cursor-not-allowed" : "bg-cream border border-navy/10 text-navy"
+    ]}
+    placeholder="0.00" 
+  />
+</div>

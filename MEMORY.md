@@ -28,6 +28,7 @@ src/
 │   ├── api/             # API endpoints
 │   ├── 404.astro        # Error page
 │   ├── contact.astro    # Contact form & info
+│   ├── currency-converter.astro # Live currency exchange rates
 │   ├── index.astro      # Main landing page
 │   ├── privacy.astro    # Privacy policy
 │   └── services.astro   # Detailed services page
