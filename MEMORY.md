@@ -62,7 +62,9 @@ public/                  # Static un-processed assets
 - Ensure new features degrade gracefully to static functionality if intended for Hostinger deployment.
 - **Logistics Tools Dashboard** (`tools.astro`):
   - **Currency Converter**: Live rates fetched client-side from `fawazahmed0/currency-api`. Default conversion is USD → INR. Amount input accepts numeric values; the converted result displays with shimmer animation while loading. Error handling shows a user-friendly message if the API fails.
-  - **Volumetric Weight Calculator**: `VolumetricCalculator.astro`. Calculates Air Freight (CM/KG divided by 6000 or IN/LBS divided by 139/166) and Sea Freight (CBM). It responds instantly to input changes. Both tools are presented in a unified side-by-side grid.
+  - **Volumetric Weight Calculator**: `VolumetricCalculator.astro`. Calculates Air Freight (CM/KG divided by 6000 or IN/LBS divided by 139/166) and Sea Freight (CBM). It responds instantly to input changes.
+  - **Container Capacity Calculator**: `ContainerCapacity.astro`. Estimates how many cartons fit in 20' Standard, 40' Standard, and 40' High Cube containers (assumes 85% packing efficiency).
+  - **Incoterms Guide**: `IncotermsGuide.astro`. Interactive visual cheat sheet for EXW, FOB, CIF, DDP responsibility transfers between buyer and seller.
 
 ## Blunders
 - None recorded yet.

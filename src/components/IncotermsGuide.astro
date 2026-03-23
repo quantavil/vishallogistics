@@ -1,0 +1,113 @@
+---
+---
+
+<div class="w-full bg-white rounded-2xl shadow-xl shadow-navy/5 border border-navy/5 p-5 md:p-6 relative overflow-hidden h-full flex flex-col group/card" data-reveal>
+  <!-- Background Decor -->
+  <div class="absolute -top-24 -right-24 w-48 h-48 bg-copper/5 rounded-full blur-3xl pointer-events-none group-hover/card:bg-copper/10 transition-colors duration-500"></div>
+  <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-navy/5 rounded-full blur-3xl pointer-events-none group-hover/card:bg-navy/10 transition-colors duration-500"></div>
+  
+  <div class="relative z-10 flex-grow flex flex-col">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-xl font-display font-bold text-navy">Incoterms Guide</h2>
+      <div class="text-[10px] md:text-xs font-bold tracking-wider uppercase bg-navy/5 text-navy px-2 py-1 rounded">Visual Aid</div>
+    </div>
+
+    <!-- Incoterm Select -->
+    <div class="flex flex-col gap-2 mb-6">
+      <div class="flex space-x-2">
+        {['EXW', 'FOB', 'CIF', 'DDP'].map((term, i) => (
+          <button 
+            type="button" 
+            class={`incoterm-tab flex-1 py-2 rounded-lg text-sm font-bold transition-all border ${i === 0 ? 'bg-copper text-white border-copper shadow-md shadow-copper/20' : 'bg-cream text-navy/70 border-navy/10 hover:border-copper/50 hover:text-navy'} `}
+            data-term={term}
+          >
+            {term}
+          </button>
+        ))}
+      </div>
+      <p id="incoterm-desc" class="text-xs text-navy/60 font-medium text-center mt-2 h-4">Ex Works (Buyer assumes all risk & cost)</p>
+    </div>
+
+    <!-- Chart -->
+    <div class="flex-grow flex flex-col justify-center space-y-3 md:space-y-4">
+      {[
+        { id: 'origin', label: 'Origin Customs' },
+        { id: 'freight', label: 'Main Freight' },
+        { id: 'insurance', label: 'Insurance' },
+        { id: 'dest', label: 'Destination Customs' },
+        { id: 'delivery', label: 'Final Delivery' }
+      ].map(stage => (
+        <div class="flex items-center justify-between text-sm border-b border-navy/5 pb-2 last:border-0 last:pb-0">
+          <span class="font-medium text-navy/80">{stage.label}</span>
+          <div class="flex items-center gap-2">
+            <span class="stage-resp text-[10px] md:text-xs font-bold px-2 py-1 rounded uppercase tracking-wider border min-w-[70px] text-center transition-all duration-300" data-stage={stage.id}>
+              Buyer
+            </span>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("astro:page-load", () => {
+    const tabs = document.querySelectorAll<HTMLElement>('.incoterm-tab');
+    const desc = document.getElementById('incoterm-desc');
+    const stages = document.querySelectorAll<HTMLElement>('.stage-resp');
+    
+    if (!tabs.length || !desc || !stages.length) return;
+
+    const data: Record<string, { desc: string } & Record<string, string>> = {
+      'EXW': { desc: 'Ex Works (Buyer bears all costs & risks)', origin: 'Buyer', freight: 'Buyer', insurance: 'Buyer', dest: 'Buyer', delivery: 'Buyer' },
+      'FOB': { desc: 'Free On Board (Seller handles origin & vessel loading)', origin: 'Seller', freight: 'Buyer', insurance: 'Buyer', dest: 'Buyer', delivery: 'Buyer' },
+      'CIF': { desc: 'Cost, Insurance & Freight (Seller pays to destination port)', origin: 'Seller', freight: 'Seller', insurance: 'Seller', dest: 'Buyer', delivery: 'Buyer' },
+      'DDP': { desc: 'Delivered Duty Paid (Seller bears all costs to door)', origin: 'Seller', freight: 'Seller', insurance: 'Seller', dest: 'Seller', delivery: 'Seller' }
+    };
+
+    function updateUI(term: string) {
+      if (!data[term]) return;
+
+      desc!.textContent = data[term].desc;
+      
+      const activeStage = ['bg-copper/10', 'text-copper', 'border-copper/20'];
+      const inactiveStage = ['bg-navy/5', 'text-navy/70', 'border-navy/10'];
+
+      stages.forEach(el => {
+        const stageId = el.getAttribute('data-stage') as string;
+        const resp = data[term][stageId];
+        el.textContent = resp;
+        
+        if (resp === 'Seller') {
+          el.classList.add(...activeStage);
+          el.classList.remove(...inactiveStage);
+        } else {
+          el.classList.add(...inactiveStage);
+          el.classList.remove(...activeStage);
+        }
+      });
+      
+      const activeTab = ['bg-copper', 'text-white', 'border-copper', 'shadow-md', 'shadow-copper/20'];
+      const inactiveTab = ['bg-cream', 'text-navy/70', 'border-navy/10', 'hover:border-copper/50', 'hover:text-navy'];
+
+      tabs.forEach(tab => {
+        if (tab.getAttribute('data-term') === term) {
+          tab.classList.add(...activeTab);
+          tab.classList.remove(...inactiveTab);
+        } else {
+          tab.classList.add(...inactiveTab);
+          tab.classList.remove(...activeTab);
+        }
+      });
+    }
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const term = tab.getAttribute('data-term');
+        if (term) updateUI(term);
+      });
+    });
+
+    updateUI('EXW');
+  });
+</script>

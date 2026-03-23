@@ -4,6 +4,8 @@ export const prerender = true;
 import Layout from '../layouts/Layout.astro';
 import CurrencyInput from '../components/CurrencyInput.astro';
 import VolumetricCalculator from '../components/VolumetricCalculator.astro';
+import ContainerCapacity from '../components/ContainerCapacity.astro';
+import IncotermsGuide from '../components/IncotermsGuide.astro';
 ---
 
 <Layout title="Logistics Tools — Vishal Logistics Solutions" description="Essential calculators and utilities for your freight and shipping planning.">
@@ -75,6 +77,12 @@ import VolumetricCalculator from '../components/VolumetricCalculator.astro';
 
       <!-- Volumetric Calculator Card -->
       <VolumetricCalculator />
+
+      <!-- Container Capacity Card -->
+      <ContainerCapacity />
+
+      <!-- Incoterms Guide Card -->
+      <IncotermsGuide />
 
     </div>
   </section>

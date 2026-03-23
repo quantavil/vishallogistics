@@ -1,0 +1,105 @@
+---
+---
+
+<div class="w-full bg-white rounded-2xl shadow-xl shadow-navy/5 border border-navy/5 p-5 md:p-6 relative overflow-hidden h-full flex flex-col group/card" data-reveal>
+  <!-- Background Decor -->
+  <div class="absolute -top-24 -right-24 w-48 h-48 bg-copper/5 rounded-full blur-3xl pointer-events-none group-hover/card:bg-copper/10 transition-colors duration-500"></div>
+  <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-navy/5 rounded-full blur-3xl pointer-events-none group-hover/card:bg-navy/10 transition-colors duration-500"></div>
+  
+  <div class="relative z-10 flex-grow">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-xl font-display font-bold text-navy">Container Capacity</h2>
+      <select id="cap-unit" class="appearance-none bg-cream border border-navy/10 rounded-lg px-3 py-1.5 text-navy font-bold text-xs focus:outline-none focus:ring-2 focus:ring-copper/30 cursor-pointer transition-all hover:bg-navy/5">
+        <option value="cm">CM</option>
+        <option value="in">IN</option>
+      </select>
+    </div>
+
+    <!-- Container Type Select -->
+    <div class="flex flex-col gap-2 mb-4">
+      <label for="cap-type" class="text-xs font-bold text-navy uppercase tracking-wider">Container Type</label>
+      <div class="relative group">
+        <select id="cap-type" class="w-full appearance-none bg-cream border border-navy/10 rounded-xl px-4 py-3 text-navy font-bold text-sm focus:outline-none focus:ring-2 focus:ring-copper/30 focus:border-copper transition-all pr-10 cursor-pointer">
+          <option value="33.2">20' Standard (~33 CBM)</option>
+          <option value="67.7">40' Standard (~67 CBM)</option>
+          <option value="76.3">40' High Cube (~76 CBM)</option>
+        </select>
+        <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-navy/40 group-hover:text-copper transition-colors">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dimensions -->
+    <p class="text-[10px] md:text-xs font-bold text-navy uppercase tracking-wider mb-2">Carton Dimensions</p>
+    <div class="grid grid-cols-3 gap-3 md:gap-4 mb-5">
+      {[
+        { id: 'l', label: 'Length' },
+        { id: 'w', label: 'Width' },
+        { id: 'h', label: 'Height' }
+      ].map(dim => (
+        <div class="flex flex-col gap-2">
+          <label for={`cap-${dim.id}`} class="text-[10px] md:text-xs font-bold text-navy/70 uppercase tracking-wider">{dim.label}</label>
+          <input type="number" id={`cap-${dim.id}`} value="50" min="0" class="w-full rounded-xl px-2 md:px-3 py-2 md:py-2.5 text-base md:text-lg font-bold bg-cream border border-navy/10 text-navy focus:outline-none focus:ring-2 focus:ring-copper/30 focus:border-copper transition-all tabular-nums text-center" />
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <!-- Results Footer -->
+  <div class="mt-auto pt-4 border-t border-navy/10">
+    <p class="text-[10px] md:text-xs text-navy/50 font-medium mb-1 uppercase tracking-wide">Est. Capacity (85% Efficiency)</p>
+    <div class="flex items-baseline gap-2">
+      <p id="cap-result" class="text-3xl font-display font-bold text-copper tabular-nums transition-all">0</p>
+      <p class="text-navy/70 font-bold font-display">Cartons</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("astro:page-load", () => {
+    const elL = document.getElementById('cap-l') as HTMLInputElement;
+    const elW = document.getElementById('cap-w') as HTMLInputElement;
+    const elH = document.getElementById('cap-h') as HTMLInputElement;
+    const elUnit = document.getElementById('cap-unit') as unknown as HTMLSelectElement;
+    const elType = document.getElementById('cap-type') as unknown as HTMLSelectElement;
+    const elResult = document.getElementById('cap-result') as HTMLElement;
+    
+    if (!elL || !elW || !elH || !elUnit || !elType || !elResult) return;
+
+    function calculate() {
+      const l = parseFloat(elL.value) || 0;
+      const w = parseFloat(elW.value) || 0;
+      const h = parseFloat(elH.value) || 0;
+      const containerCBM = parseFloat(elType.value) || 0;
+      const unit = elUnit.value;
+      
+      let cartonVolume = l * w * h;
+      if (cartonVolume === 0) {
+        elResult.textContent = '0';
+        return;
+      }
+      
+      let cartonCBM = 0;
+      if (unit === 'cm') {
+        cartonCBM = cartonVolume / 1000000;
+      } else {
+        cartonCBM = cartonVolume / 61023.7; // cubic inches to CBM
+      }
+      
+      // 85% packing efficiency
+      const usableVolume = containerCBM * 0.85;
+      
+      // Calculate capacity
+      const cartons = Math.floor(usableVolume / cartonCBM);
+      
+      elResult.textContent = cartons > 0 ? cartons.toLocaleString('en-US') : '0';
+    }
+    
+    [elL, elW, elH].forEach(input => input.addEventListener('input', calculate));
+    [elUnit, elType].forEach(select => select.addEventListener('change', calculate));
+    
+    // Initial calculation
+    calculate();
+  });
+</script>
