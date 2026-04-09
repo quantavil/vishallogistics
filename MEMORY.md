@@ -52,7 +52,7 @@ public/                  # Static un-processed assets
 - `bun install` for package management.
 - `bun run dev` for development server.
 - Uses `@astrojs/cloudflare` adapter for Cloudflare Pages deployment.
-- Contact form submissions were migrated from Web3Forms to **Resend** (via Cloudflare Worker / API route).
+- Contact form submissions use **Web3Forms** (client-side AJAX in `contact.astro`). A Cloudflare SEB-based API route (`api/contact.ts`) exists but is **not wired up** — dead code from a planned migration.
 
 ## Critical Information
 - Since the Astro site uses a Cloudflare adapter for SSR, only static/prerendered pages will work on Hostinger. The contact form works via Web3Forms (client-side AJAX), so it operates smoothly on both.

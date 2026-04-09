@@ -35,8 +35,7 @@
       <div class="relative group">
         <select id="vol-type" class="w-full appearance-none bg-cream border border-navy/10 rounded-xl px-4 py-3 text-navy font-bold text-sm focus:outline-none focus:ring-2 focus:ring-copper/30 focus:border-copper transition-all pr-10 cursor-pointer">
           <option value="6000">Intl. Air Freight & Export (/6000)</option>
-          <option value="5000">Express & Domestic Air (/5000)</option>
-          <option value="4000">Indian Domestic Surface (/4000)</option>
+          <option value="5000">Express / Courier Air (/5000)</option>
           <option value="cbm">Sea Freight LCL (CBM)</option>
         </select>
         <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-navy/40 group-hover:text-copper transition-colors">
@@ -99,10 +98,8 @@
           // If in inches, mapping standard divisors to their inch equivalents (roughly)
           // /6000 cm3/kg -> /166 in3/lbs
           // /5000 cm3/kg -> /139 in3/lbs
-          // /4000 cm3/kg -> /110 in3/lbs
           let dimDivisor = 166;
           if (divisor === 5000) dimDivisor = 139;
-          if (divisor === 4000) dimDivisor = 110;
           
           weight = volume / dimDivisor;
           elResultUnit.textContent = 'LBS';

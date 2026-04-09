@@ -186,6 +186,11 @@ const pathname = Astro.url.pathname.replace(/\/$/, "") || "/";
     function toggleMenu() {
       isOpen = !isOpen;
 
+      // Accessibility: sync ARIA states
+      document.getElementById('menu-btn')?.setAttribute('aria-expanded', String(isOpen));
+      drawer?.setAttribute('aria-hidden', String(!isOpen));
+      backdrop?.setAttribute('aria-hidden', String(!isOpen));
+
       // Burger animation
       const spans = burger?.querySelectorAll("span");
       if (spans && spans.length === 3) {
