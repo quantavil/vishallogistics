@@ -1,6 +1,6 @@
 {
   // "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "vishal-logistics",
+  "name": "vishallogistics",
   "main": "@astrojs/cloudflare/entrypoints/server",
   "compatibility_date": "2025-03-01",
   "compatibility_flags": [
